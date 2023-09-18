@@ -14,7 +14,7 @@ fontsize: 12pt
 ```{python packages}
 #| include: false
 
-#execute:
+#execute: 
 #  cache: true
 
 # loading packages
@@ -83,7 +83,7 @@ The question arises, is it true then that there is something special about non-h
 
 
 # Load the data
-PKD_model_DF = pd.read_csv("C:/Users/nikod/Documents/RProjects/hivProject/PKD_model_DF.csv")
+PKD_model_DF = pd.read_csv("../dataBits/PKD_model_DF.csv")
 
 # Create a figure with two subplots in one row and two columns
 fig, axes = plt.subplots(1, 2, figsize=(12, 5))
@@ -163,7 +163,7 @@ Let's see how the relation between our demographical predictors and being HIV po
 #| message: false
 #| fig-pos: 'H'
 
-with open('../postDF_Hetero_Gender.pkl', 'rb') as f:
+with open('../savedBits/postDF_Hetero_Gender.pkl', 'rb') as f:
     postDF_Hetero_Gender = pickle.load(f)
 
 
@@ -261,7 +261,7 @@ As we are intrested in testing transmission based on sexual activities we will o
 #| label: fig-violinbigmales
 #| fig-cap: This is vis of males.
 
-DFPost_HIVRiskProfile = pd.read_csv("C:/Users/nikod/Documents/RProjects/hivProject/DFPost_HIVRiskProfile.csv")
+DFPost_HIVRiskProfile = pd.read_csv("../savedBits/DFPost_HIVRiskProfile.csv")
 
 sns.set(style="whitegrid")
 
@@ -407,7 +407,7 @@ The variables that I will use to create the RP are:
 #| warning: false
 #| message: false
 
-with open('../DFPOST_HIv_risk_gender.pkl', 'rb') as f:
+with open('../savedBits/DFPOST_HIv_risk_gender.pkl', 'rb') as f:
     DFPOST_HIv_risk_gender = pickle.load(f)
 
 sns.set(style="whitegrid", font_scale=0.85) 
@@ -458,7 +458,7 @@ In the @fig-riskprofgenderhiv, that represents the probability of getting infect
 # DFPost_Post_RISK_NormGendernoHetero.pkl
 # DFPost_POST_RISK_Hetero.pkl
 
-with open('../DFPost_Post_RISK_NormGendernoHetero.pkl', 'rb') as f:
+with open('../savedBits/DFPost_Post_RISK_NormGendernoHetero.pkl', 'rb') as f:
     DFPost_Post_RISK_NormGendernoHetero = pickle.load(f)
 
 
@@ -479,7 +479,7 @@ axs[0].set_ylabel("Probability", fontsize=18)
 
 # second vis
 
-with open('../DFPost_POST_RISK_Hetero.pkl', 'rb') as f:
+with open('../savedBits/DFPost_POST_RISK_Hetero.pkl', 'rb') as f:
     DFPost_POST_RISK_Hetero = pickle.load(f)
 
 
