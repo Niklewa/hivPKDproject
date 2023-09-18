@@ -1,3 +1,4 @@
 visualizations filter=lfs diff=lfs merge=lfs -text
 *.zip filter=lfs diff=lfs merge=lfs -text
 savedBits/* filter=lfs diff=lfs merge=lfs -text
+dataBits/* filter=lfs diff=lfs merge=lfs -text
