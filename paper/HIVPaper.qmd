@@ -9,6 +9,8 @@ format:
         sansfont: Times New Roman
 urlcolor: blue
 fontsize: 12pt
+execute: 
+  cache: true
 ---
 
 ```{python packages}
