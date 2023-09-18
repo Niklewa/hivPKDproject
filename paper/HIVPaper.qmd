@@ -46,12 +46,16 @@ fancyMine1 = ["#024b7a", "#44b7c2"]
 
 \begin{abstract}
 
-\textbf{Abstract:} In this paper I conduct an analysis of PKD survey dataset, which is a survey that collects informations of people in HIV testing centers in Poland.
+\textbf{Abstract:} This study challenges the stereotype associating HIV infection primarily with non-heteronormative males. Through Bayesian logistic regression models and risk profile analysis, I have uncovered that risky behaviors, rather than sexual identity or gender, are the primary drivers of HIV infection.
+
+The research employs a dataset created from a survey conducted in Polish HIV diagnostic centers. Poland is currently experiencing a rise in new HIV infections, with non-heteronormative males constituting the majority of new cases. However, the findings reveal that high-risk behavior serves as a more accurate predictor of infection than gender or sexual identity. This highlights the complexity of the factors driving new infections among non-heteronormative males.
+
+This research underscores the critical need for comprehensive awareness and testing to combat the ongoing HIV epidemic. It prompts a reevaluation of the assumptions surrounding the causes of the domination of non-heteronormative males in new infections.
 
 \end{abstract}
 
 
-\vspace{20mm}
+\vspace{12mm}
 
 
 ## Introduction
@@ -79,11 +83,13 @@ One thing to note, due to the survey's anonymity, individuals who test themselve
 The question arises: Is there indeed something distinctive about non-heteronormative males that makes them more susceptible to HIV infection? I will attempt to answer this question by examining causal relationships among various predictors, with a focus on identifying variables that best predict HIV positivity.
 
 
+**DESCRIPTION**
+
 
 ```{python}
 #| label: fig-demography
 #| echo: false
-#| fig-cap: hello
+#| fig-cap: The plot on the left represents the distriubtion of gender and sexual identity of the people in the dataset. The plot on the right represents the ration of gender and sexual identity among the tested positive individuals.
 #| fig-pos: 'H'
 
 
@@ -148,11 +154,41 @@ plt.show()
 ```
 
 
-## First section
+## Exploring HIV Risk Factors and Predictors
 
-Let's first try to build a model that will trying to predict being HIV infected based on variables that we already know, so sex and sexual identity. All the statistical models in this project where build using 'numpyro' pacakage in python [link to package documentation]. It is a simplified version of 'pyro' package, both are focused on delivering tools for probabilistc data analyysis, including building advanced hiercharchical models. I used bayesian style logistic regression, the main difference in this kind of models is the possibility to choose how a prior distribution of the predictors ought to look like. The models use quadratic aproximation...
+Let's begin by constructing a model aimed at predicting HIV infection based on known variables: gender and sexual identity. All statistical models in this project were built using the 'numpyro' package in Python (https://num.pyro.ai/en/latest/index.html#introductory-tutorials). It's a simplified version of the 'pyro' package, both of which focus on providing tools for probabilistic data analysis, including the creation of advanced hierarchical models. Specifically, I employed Bayesian-style logistic regression. The primary distinction in these models lies in the ability to specify the prior distribution of the predictors. The model is run using the No-U-Turn Sampler (NUTS), a variant of Markov Chain Monte Carlo (MCMC). Here's a template of how the model looks like:
 
-Let's see how the relation between our demographical predictors and being HIV positive look like. In the Figure @fig-modelsexhetero you can see the prediction made by the model that as predictors took Gender and sexual identity of the clients. The violins represent the distriubtion of predictions, they are not singel point estimates. It is characteristic for bayesian aproach to always interpreteae distributions as they convey more information than e.g. mean, or statistical tests.
+\footnotesize
+
+```{python}
+#| eval: false
+
+dat_listGender = {
+    'HIV': PKD_model_DF.HIV.values,
+    'Hetero_normative': PKD_model_DF.Hetero_normative.values,
+    'Gender_encoded': PKD_model_DF.Gender_encoded.values,
+    }
+
+def model_hetero_Gender(Hetero_normative, Gender_encoded, HIV=None):     
+    a = numpyro.sample("a", dist.Normal(0, 1.5))  
+    b = numpyro.sample("b", dist.Normal(0, 0.5).expand([2])) 
+    c = numpyro.sample("c", dist.Normal(0, 0.5).expand([2])) 
+
+    logit_p = a + b[Hetero_normative] + c[Gender_encoded]
+    numpyro.sample("HIV", dist.Binomial(logits=logit_p), obs=HIV)
+
+HIV_HetreoNorm_Gender = MCMC(NUTS(model_hetero_Gender),
+    num_warmup=500, num_samples=500) 
+HIV_HetreoNorm_Gender.run(random.PRNGKey(0), **dat_listGender)
+
+
+
+```
+
+
+\normalsize
+
+Now, let's explore the relationship between our demographic predictors and the likelihood of being HIV positive. In Figure @fig-modelsexhetero, you can observe predictions made by the model, which utilized gender and sexual identity as predictors. The violin plots represent the distribution of predictions, rather than single point estimates. This approach aligns with the Bayesian methodology, as it conveys more information than, for instance, just a mean or statistical tests.
 
 
 
@@ -194,9 +230,8 @@ plt.show()
 
 ```
 
-Comparitivly the difference is significant, and non-heterosexual males seems to be at the highest risk of getting infected (when no other causes are considered). But there is also difference between genders, males again are at grater risk. In fact there are many publications that justifies the claim that woman are less susceptible to infection then man @Beyrer2012. The risk for a woman to get infected during a intercourse with a infected person is smaller then for a man^[Historically at first it was thought that only males can get AIDS deases which is caused by HIV virus.]. THIS REFERENCE TEST @fig-modelsexhetero
 
-
+Comparatively, the differences are significant, with non-heterosexual males appearing to be at the highest risk of infection when considering no other factors. However, there are also distinctions between genders, with males once again being at greater risk. In fact, there are many publications supporting the claim that women are less susceptible to infection compared to men (@Beyrer2012). The risk of a woman contracting HIV during intercourse with an infected person is lower than that for a man.^[Historically, it was initially believed that only males could contract the AIDS disease caused by the HIV virus.]
 
  
 ```{python}
@@ -236,13 +271,12 @@ plt.show()
 
 - Why non hetero woman are getting sick so common? It should be safer, mayybe confounders
 
-But does it tell us something about the casual relationship? It certainly tell us something, but we should consider a whole range of underlying causes that might be responsible for such a result. Let's look at a DAG, represented as a @fig-dagwrong, that represents the reasoning that is along the lines of the first model.
+But does this information provide us with insights into causal relationships? It certainly provides some insights, but we should consider a wide range of underlying causes that might be responsible for such results. Let's examine a Directed Acyclic Graph (DAG), represented as @fig-dagwrong, which reflects the reasoning of the initial model
 
 
+The reasoning appears to be somewhat limited, suggesting that there is something 'special' about males and non-heterosexual individuals that makes them more prone to HIV infection. The primary achievement of this reasoning is to reinforce the stereotype that HIV is primarily an infection of homosexual males. Let's now shift our focus to the main objective of this work. We aim to identify predictors that may offer a better explanation for HIV infection, potentially going beyond the simplistic division between heterosexual and non-heterosexual individuals.
 
-The reasoning looks preatty poor, it sugggest that there is somehing 'special' about males and non-hetero sexuals that makes them to be more prone to HIV infection. Only thing that it does well is to support stereotypical view that HIV is an infection of homosexual males. So let's turn into the main goal of this work. That it is, let's search for predictors that will be better at predicting HIV infection, that perhaps underlies this simple division between hetero and non-hetero people. 
-
-What predictors should we choose? The risk factors of HIV are a subject of many studies, we can use their findings and test on our dataset. According to WHO the list of the most common risk factors is @whoAIDS:
+What predictors should we consider? The risk factors for HIV have been the subject of numerous studies, and we can leverage their findings in our dataset. According to the World Health Organization (WHO), the most common risk factors include: 
 
 
 >   - having condomless anal or vaginal sex;
@@ -250,9 +284,9 @@ What predictors should we choose? The risk factors of HIV are a subject of many 
     - engaging in harmful use of alcohol and drugs in the context of sexual behaviour;
     - sharing contaminated needles, syringes and other injecting equipment and drug solutions when injecting drugs;
     - receiving unsafe injections, blood transfusions and tissue transplantation, and medical procedures that involve unsterile cutting or piercing; and
-    - experiencing accidental needle stick injuries, including among health workers.
+    - experiencing accidental needle stick injuries, including among health workers. [@whoAIDS]
 
-As we are intrested in testing transmission based on sexual activities we will omit injective drug users and marginal cases of medical accidents when one can got infected from a patient's blood. But what can we add is the amount of sexual partners (in a year) that a person had, logic behind that is simple, more partners means more opportunities to get infected. Also, we will focus on anal sex as choosing a risk factor, as it is the most dangerous sexual activitity whent it comes to HIV infection^[I could have tested oral sex and danger of not using protection during oral sex, but because of troubling division between passive and active oral sex, the data variable seems to be not trustworthy. It is very common to mix up what passive and active oral sex means. By definition being on a receptive end is called passive, and a person using their mouth is called active. But in the gay community division between tops and bottoms (actives and passives) understand being receptive in oral sex as an active activity.].
+Since we are specifically interested in examining transmission based on sexual activities, we will exclude injective drug users and marginal cases of medical accidents where infection might occur through contact with a patient's blood. However, we can add the variable representing the number of sexual partners (per year) a person has. The rationale here is simple: more partners mean more opportunities for infection. Additionally, we will focus on anal sex as a chosen risk factor, given that it is the most high-risk sexual activity^[We could have tested oral sex and the risk of not using protection during oral sex, but due to the ambiguous distinction between passive and active oral sex, the data variable seems unreliable. There is common confusion between what constitutes passive and active oral sex. By definition, being on the receptive end is called passive, while using one's mouth is called active. However, in the gay community, the division between tops and bottoms (actives and passives) often perceives receptive oral sex as an active activity.].
 
 
 ```{python}
@@ -383,18 +417,18 @@ plt.show()
 
 ```
 
-In the @fig-violinbigmales and @fig-violinbigfemales you can see visualization of predictions created by the logistic regression model for males and females respectively. The model used the following predictors: gender, number of sexual partners (in a year), anal sex preference, having sex under the influence of alcochol. There is a striking difference between males and females, even when woman are in the most risky profile, the danger of infection is still mcuh lower than for the males. As I stated before, there are studies that are along this result caliming that woman are much less susceptible to HIV infection for bio-chemical reasons.
+In figures: @fig-violinbigmales and @fig-violinbigfemales, you can observe visualizations of predictions created by the logistic regression model for males and females, respectively. The model utilized the following predictors: gender, number of sexual partners (per year), preference for anal intercourse, and engaging in sexual activity under the influence of alcohol. There is a striking contrast between males and females. Even when women fall into the most high-risk profile category, the risk of infection remains considerably lower than for males. As mentioned earlier, studies support these findings, suggesting that women are significantly less susceptible to HIV infection for biochemical reasons.
 
-All that factors account to the most risky profile, a male that had above $51$ sexual partners, prefers verastile anal intercourse, and does alcochol induced sex. It can be observe that any of those categories increases the probability of getting infected individually.
+All these factors contribute to the definition of the most high-risk profile: a male with more than 51 sexual partners, a preference for versatile anal intercourse, and engaging in alcohol-induced sex. It's evident that each of these categories individually increases the probability of infection.
 
-## Next section
+## Defining a High-Risk Profile for HIV Infection
 
-The next step of my reaserch is to define a Risk Profile (RP) that maximizes the chances of getting HIV infected, the profile will not include sexual identity and \textbf{gender}. I will define the profile as a new binary variable in the dataset, this way will be much simpler than building a model that takes all these variables and creates a different category for all of them.      
+The next step in my research involves defining a Risk Profile (RP) that maximizes the chances of HIV infection. This profile will \textbf{ exclude sexual identity and gender} in order to empasize the influence of other variables. I will introduce the profile as a new binary variable in the dataset. This approach is simpler than constructing a model that accommodates all these variables and creates different categories for each of them.   
 
-The variables that I will use to create the RP are:      
+The variables I will use to create the RP are:     
 
-- Alcochol induced sex,
-- The amount of sexual partners a year $> 10$, 
+- Alcochol-induced sex,
+- Having more than 10 sexual partners per year, 
 - Anal sex preference: passive or versatile, 
 - Anal sex protection use: sometimes or never.       
 
@@ -446,8 +480,7 @@ plt.show()
 
 
 
-In the @fig-riskprofgenderhiv, that represents the probability of getting infected for the RP, we can observe that the probability for males that are in the RP group is bigger then a probability in our first model (represented in the @fig-modelsexhetero), that showed high probability of infection for non-hetero males. It suggests that RP profile holders are at greater risk of infection then non-hetero males. But what is the relation between those two variables? We will test with our next model.
-\todo{Let's maybe run WAIC test to compare those two models}
+In Figure @fig-riskprofgenderhiv, which represents the probability of infection for the RP, we can observe that the probability for males in the RP group is higher than the probability in our first model (represented in @fig-modelsexhetero), which showed a high probability of infection for non-hetero males. This suggests that RP profile holders are at a greater risk of infection than non-hetero males. But what is the relationship between these two variables? We will test this with our next model.
 
 ```{python}
 #| echo: false
@@ -512,9 +545,9 @@ plt.show()
 ```
 
 
-In this pair of visualizations at @fig-twinriskprob we cann see the models that were give as predictors respectivaly a gender and sexual identity to predict being in the most risky group. As it can be seen non-hetero people and males has the highest probability in being in that group. 
+In the pair of visualizations in @fig-twinriskprob, we can see the models that were given gender and sexual identity as predictors to predict being in the most risky group. As it can be seen, non-hetero individuals and males have the highest probability of being in that group.
 
-Getting back to representing the causes of getting HIV infected. The variables that increases the probability of getting HIV infected are better at getting you infected, therefore taking them as causes is more reasonable. The DAG that will represent the relation between the consdiered variables, after our analysis will look somewhere like this one @fig-postdag.
+Returning to representing the causes of HIV infection, the variables that increase the probability of infection are better at getting you infected. Therefore, considering them as causes is more reasonable. The Directed Acyclic Graph (DAG) that will represent the relationship between the considered variables, after our analysis, will look something like the one shown in @fig-postdag.
 
 
 ```{python}
@@ -550,12 +583,12 @@ plt.show()
 
 ## Conclusions
 
-In this @fig-postdag the DAG represents the relationshiop between predictors that we analyzed. It seems to represent the cause and effect more accurately, then just relying on a fact that non-hetero males are 'special' in some way and it makes them to get HIV infected. In fact non-hetero males has high probability of being in a RP group, risky behaviours assocaited with RP status are the causes of getting HIV infected. It includes having anal intercourse and high amount of sexual partners which is associated with non-hetero males. The reason why non-hetero males choses to be in that group is not-known, this fact is represented with Unobserved node. 
+In the @fig-postdag, the DAG represents the relationship between the predictors we analyzed. It seems to represent cause and effect more accurately than just relying on the notion that non-hetero males are 'special' in some way, leading to HIV infection. In fact, non-hetero males have a high probability of being in an RP group, and risky behaviors associated with RP status are the causes of HIV infection. This includes having anal intercourse and a high number of sexual partners, which is associated with non-hetero males. The reason why non-hetero males choose to be in that group is not known, represented by the Unobserved node.
 
-Is the stereotype tru then? Well non-hetero males are in the highest risk of getting HIV infected, but their sexual identity is not a direct cause of that. Hetero sexual male that enjoys simmilar activities, so is in a RP also has higher chances of getting infected. The more direct cause is risky behaviour, and non-hetero males tend to engage in more risky behaviours. Therefore the story is more complicated. One thing is certain, the sole fact of being non-hetero person does not make you more susceptible to getting HIV infected.
+Is the stereotype true then? Well, non-hetero males are at the highest risk of getting HIV infected, but their sexual identity is not a direct cause of that. Hetero sexual males who enjoy similar activities, and thus are in an RP, also have higher chances of getting infected. The more direct cause is risky behavior, and non-hetero males tend to engage in more risky behaviors. Therefore, the story is more complex. One thing is certain: the sole fact of being a non-hetero person does not make you more susceptible to getting HIV infected.
 
-Interesting observation that is in a field of interest of specialist from different science branches is the fact that woman gets infected far less often than males. My analyzis has confirmed that fact.
+An interesting observation in the field of interest to specialists from different scientific branches is the fact that women get infected far less often than males. 
 
-One thing worth attention is a worrying growth of new HIV infections in Europe. The mentioned stereotype might have a negative effect on public opinion, as hetero people might feel too confident about not getting infected, as this infection is associate mainly in non-hetero males. This analyzis showed that there is a risky behaviour pattern that all the people should know about that it can lead to HIV infection. In fact, as we have seen at the beginning, hetero males tend to test themselves much less often that non-hetero males.
+One thing worth noting is the concerning growth of new HIV infections in Europe. The mentioned stereotype might have a negative effect on public opinion, as hetero people might feel too confident about not getting infected, assuming this infection is mainly associated with non-hetero males. This analysis has shown that there is a risky behavior pattern that all people should be aware of, as it can lead to HIV infection. In fact, as we have seen at the beginning, hetero males tend to test themselves much less often than non-hetero males.
 
 #  References {-}
