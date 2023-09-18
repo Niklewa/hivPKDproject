@@ -1,0 +1,87 @@
+%\documentclass{article}
+
+% todonotes package                          #####################
+
+\usepackage[textsize=footnotesize]{todonotes}
+
+
+%language                                    #####################
+
+%\usepackage{times}
+%\usepackage{t1enc}                               Trouble maker
+%\usepackage[utf8x]{inputenc}
+%\usepackage[polish]{babel}
+%\usepackage{polski}
+
+% modyfing quote environment
+
+\usepackage[T1]{fontenc} % Required for correct quotes with ""
+
+\renewenvironment{quote}
+{\list{}{\leftmargin=1em\rightmargin=1em}\item[]``}
+{''\endlist}
+
+
+% math                                       #####################
+
+%AMS
+\usepackage{amsfonts}
+\usepackage{amssymb}
+%\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{mathtools}
+
+
+% page geometry                              #####################
+
+
+\usepackage{geometry}
+ \geometry{a4paper,left=30mm, right=30mm,top=20mm} 
+
+\setlength{\parindent}{10pt}
+\setlength{\parskip}{1pt}
+
+\usepackage{float}
+\restylefloat{figure}
+
+% abbreviations                              #####################
+
+\newcommand{\ra}{\rangle}
+\newcommand{\la}{\langle}
+\newcommand{\n}{\neg}
+\newcommand{\et}{\wedge}
+\newcommand{\jt}{\rightarrow}
+\newcommand{\ko}[1]{\forall  #1\,}
+\newcommand{\ro}{\leftrightarrow}
+\newcommand{\exi}[1]{\exists\, {_{#1}}}
+\newcommand{\pr}[1]{\mathsf{P}(#1)}
+\newcommand{\cost}{\mathsf{cost}}
+\newcommand{\benefit}{\mathsf{benefit}}
+\newcommand{\ut}{\mathsf{ut}}
+
+\newcommand{\odds}{\mathsf{Odds}}
+\newcommand{\ind}{\mathsf{Ind}}
+\newcommand{\nf}[2]{\nicefrac{#1\,}{#2}}
+\newcommand{\R}[1]{\texttt{#1}}
+\newcommand{\prr}[1]{\mbox{$\mathtt{P}_{prior}(#1)$}}
+\newcommand{\prp}[1]{\mbox{$\mathtt{P}_{posterior}(#1)$}}
+
+\newcommand{\s}[1]{\mbox{$\mathsf{#1}$}}
+
+
+\newtheorem{q}{\color{blue}Question}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
+
+
+% bibliography                                #####################
+
+\usepackage[authoryear]{natbib}
+
+%\bibliographystyle{apalike}
+
+
+
+
+

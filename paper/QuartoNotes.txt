@@ -1,0 +1,6 @@
+Creating and using markdonw with cells dedicated for python ue in vs code requires installation of quarto and quarto extension. 
+BUT python need to be installed via official python website not vsCode or microsofot store, otherwise there is a serious error that
+unables files compilation.
+
+
+Also to quickly install packages through win 11 powershell: py -m pip install numpy

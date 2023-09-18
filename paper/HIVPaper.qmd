@@ -1,0 +1,560 @@
+---
+title: "Bayesian Modeling of HIV Risk Factors: "
+subtitle: "Confronting HIV as a Stereotypical Infection of Sexual Minorities"
+author: "Nikodem Lewandowski"
+format:
+    pdf:
+        include-in-header: quartoStyle.sty
+        mainfont: Times New Roman
+        sansfont: Times New Roman
+urlcolor: blue
+fontsize: 12pt
+---
+
+```{python packages}
+#| include: false
+
+#execute:
+#  cache: true
+
+# loading packages
+
+import seaborn as sns
+import arviz as az
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import pickle
+import networkx as nx
+
+
+# complex data wrangling and model building is kept in seperate files,
+# please read the readme file to navigate easily through that project
+
+
+# palletes
+
+pallette_colBlindPair1 = ["#DDCC77", "#88CCEE"] 
+fancyMine1 = ["#024b7a", "#44b7c2"]
+
+
+```
+
+
+\begin{abstract}
+
+\textbf{Abstract:} In this paper I conduct an analysis of PKD survey dataset, which is a survey that collects informations of people in HIV testing centers in Poland.
+
+\end{abstract}
+
+
+\vspace{20mm}
+
+
+## Introduction
+
+The year 1980 is proclaimed as the start of HIV epidemic, from that time many scientist around the world are trying their best to find new ways of prtecting global public from the infection and treating the people that got infected. Because of the aweranes that grew, and breakthrough medical achievemnts it is easy now to detect HIV virus in the blood of an individual, and we know that using condoms and PrEP is an effective way of not getting infected.           
+
+Thanks to that the global amount of new infections get very low, and in the developed countries, thanks to the new ways of treatment, people that are infected can live as long as not infected people. The global rate of infections is thankfully still getting lower. But from some time in some well developed countries we can see worrying spikes of new infections, HIV infections are growing. It is visible in the European Union (EU) where the common new number of infections is rising from some time. One of the factors is the globall Covid-19 epidemic that caused people to not getting tested for HIV (which is visible in our dataset). Poland is one of the countries where to problem is getting worse.           
+
+From the beggining of the HIV epidemic, this various was assosiated with non-heteronormative people, mostly with males. In those years gay man were much less accepted then other sexual identities. Gay clubs were one of the types of places where they can feel free, safe and accepted. Being anonymous was a virtue, and a behaviour of having anonymous sex with random people was an occurence for some. Before the knowledge about HIV using condoms was much less populat, therfore this kind of  sexual behaviour was very risky.   
+
+This stereotype of HIV being "the deases of gays" is still strong. In this work I want to confront it, by analyzing the \textbf{causes} of getting infected. I want it this work to be centred around causal relation. The main questions of my work are: 
+
+- does males in general have higher probability of contracting HIV?
+- does homosexual are at the higher risk than heterosexuals?   
+
+\textbf{Main goal:} Let's confront a common stereotype that HIV is mainly male gays desease. What so special about gay man that makes them most HIV sensitive?
+
+I will try to answer these question by the analyzis of surveys conducteed in Polish HIV testing centres. The testing centres are called PKDs (pol. Punkt Konsultacyjno Diagnostyczny - Diagnostic Consultation Center), there is at least one in every major administratory region in Poland (Voivodeship). Testing there is always: anonymous, free of charge and save. The clients of this centre are always surveyed by the medical professional that qualifies them for a test. The survey has many interesting varioubles, some we will put to the test as the one of the survey's section is centred around sexual life.     
+
+The data were collected from 2015 to 2022, and have more than $250 000$ respondents. One thing to remember, this dataset is not an accurate source of information on the \textbf{number of new infections}, as there are various other places in Poland that can diagnose HIV, therefore we are focusing on the survey questions.  On the visualizations below you can see the demography of the survey. PLot on the left represents the share of gender^[22 people identified as 'Different' gender their number is to small to be considered significant, therefore there are excluded from the analysis.] and sexual identity among the PKD clients. Majority of the clients are males, interestingly non-hetero normative males are the half of all the male clients, therefore much more than there are non-hetero normative man in the population. Females however are represented far more accurately.
+
+The plot on the right represents sexual identity and gender among HIV positive test results^[Those people that will be considered HIV positive in this analysis had two tests, one the usual screening test that yiellded positive result, and the second that measured the amount of HIV virus in the blood, that confirmed the first result]. Around $70\%$ of HIV positive people are non-hetero normative males. The result motivates further analysis, as it turned out that non-hetero norm. males are far more susiceptable to getting infected. The one positive thing about thatm is that this group of people seems to be aware of the danger, since there are over represented as a group of people that test themselves. One thing to note, in the dataset every client has their unique ID number, but as the survey is fully anonymous, people that test themselves regurarly will not be represented as one person, and some people that regurarly has MSM (sex between two males) justify that test themselves e.g. monthly. This might be a reason (or one of the reasons) why this group is overrepresented. 
+
+The question arises, is it true then that there is something special about non-hetero normative males that they are getting infected much more often? I will try to answer that by looking for causal links between various predictors, mainly searching for variables that are best at predicting being HIV positive.
+
+
+```{python}
+#| label: fig-demography
+#| echo: false
+#| fig-cap: hello
+#| fig-pos: 'H'
+
+
+# Load the data
+PKD_model_DF = pd.read_csv("C:/Users/nikod/Documents/RProjects/hivProject/PKD_model_DF.csv")
+
+# Create a figure with two subplots in one row and two columns
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+# 1st plot - Gender Distribution by Sexual Identity
+grouped_data = PKD_model_DF.groupby(["Płeć", "Hetero_normative"]).size().unstack(fill_value=0)
+grouped_data = grouped_data.loc[grouped_data.index != 'I']
+
+
+
+ax1 = grouped_data.plot(kind="bar", stacked=True, color=fancyMine1, width=0.4,  ax=axes[0])
+ax1.set_xlabel("")
+ax1.set_title("Gender Distribution by Sexual Identity", fontsize=24, y=1.1)
+ax1.legend(labels=["Non-Hetero norm.", "Hetero norm."], frameon=False, fontsize= 18, loc='upper left', bbox_to_anchor=(0, 1))
+ax1.set_xticklabels(['Females', 'Males'], rotation=0)
+ax1.spines['top'].set_visible(False)
+ax1.spines['right'].set_visible(False)
+ax1.grid(False)
+
+ax1.tick_params(axis='y', labelsize=18)
+ax1.tick_params(axis='x', labelsize=18)
+
+# 2nd plot - HIV Positive Ratio
+category_counts = PKD_model_DF.groupby(["Płeć", "Hetero_normative", "HIV"]).size().reset_index(name='Count')
+category_counts = category_counts.loc[category_counts['Płeć'] != 'I']
+category_counts = category_counts.loc[category_counts['HIV'] != 0]
+category_counts['Percentage'] = category_counts['Count'] / sum(category_counts['Count'])
+
+ax2 = sns.barplot(data=category_counts, x='Płeć', y='Percentage',
+                   hue='Hetero_normative', palette=fancyMine1, saturation=1,  ax=axes[1])
+ax2.set_xlabel('')
+ax2.set_ylabel('')
+ax2.set_title('HIV Positive', fontsize=22, y=1.1)
+ax2.set_xticklabels(['Females', 'Males'], rotation=0)
+ax2.spines['top'].set_visible(False)
+ax2.spines['right'].set_visible(False)
+ax2.legend().set_visible(False)
+
+ax2.tick_params(axis='y', labelsize=18)
+ax2.tick_params(axis='x', labelsize=18)
+
+ax2.grid(False)
+
+
+from matplotlib.ticker import FuncFormatter
+def percentage_formatter(x, pos):
+    return f'{x:.0%}'  # Display percentage without decimal places
+
+ax2.yaxis.set_major_formatter(FuncFormatter(percentage_formatter))
+
+# Set y-axis ticks from 0 to 70 by 10
+ax2.set_yticks([0.0, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70])
+
+
+# Show the subplots
+plt.tight_layout()
+plt.show()
+
+
+```
+
+
+## First section
+
+Let's first try to build a model that will trying to predict being HIV infected based on variables that we already know, so sex and sexual identity. All the statistical models in this project where build using 'numpyro' pacakage in python [link to package documentation]. It is a simplified version of 'pyro' package, both are focused on delivering tools for probabilistc data analyysis, including building advanced hiercharchical models. I used bayesian style logistic regression, the main difference in this kind of models is the possibility to choose how a prior distribution of the predictors ought to look like. The models use quadratic aproximation...
+
+Let's see how the relation between our demographical predictors and being HIV positive look like. In the Figure @FigModelSexHetero you can see the prediction made by the model that as predictors took Gender and sexual identity of the clients. The violins represent the distriubtion of predictions, they are not singel point estimates. It is characteristic for bayesian aproach to always interpreteae distributions as they convey more information than e.g. mean, or statistical tests.
+
+
+
+```{python}
+#| label: fig-modelsexhetero
+#| fig-cap: This visualization shows the prediction made by the logistic model that learned upon the dataset. Violins represent the distriubtion of probability preditction of getting HIV relative to gender and sexual identity.
+#| echo: false
+#| warning: false
+#| results: hide
+#| message: false
+#| fig-pos: 'H'
+
+with open('../postDF_Hetero_Gender.pkl', 'rb') as f:
+    postDF_Hetero_Gender = pickle.load(f)
+
+
+gender_mapping = {0: "Females", 1: "Males"}
+
+postDF_Hetero_Gender['Gender'] = postDF_Hetero_Gender['Gender'].replace(gender_mapping)
+
+sex_ident_order = ['Hetero', 'Non-hetero']
+
+# Reorder the SexIdent categories in the DataFrame
+postDF_Hetero_Gender['SexIdent'] = pd.Categorical(postDF_Hetero_Gender['SexIdent'], categories=sex_ident_order, ordered=True)
+
+sns.set(style="whitegrid", font_scale=0.85)  # Adjust font_scale as needed (0.9 makes it slightly smaller)
+g = sns.FacetGrid(postDF_Hetero_Gender, col='Gender' ) 
+g.map_dataframe(sns.violinplot, x="SexIdent", hue='SexIdent', y="Probability",
+palette= fancyMine1)# pallete here
+
+g.set_axis_labels('', 'Probability')
+g.set_titles(col_template = '{col_name}')
+
+g.fig.subplots_adjust(top=0.77)
+g.fig.suptitle('Probability of Getting HIV Infected')
+
+plt.show()
+
+
+```
+
+Comparitivly the difference is significant, and non-heterosexual males seems to be at the highest risk of getting infected (when no other causes are considered). But there is also difference between genders, males again are at grater risk. In fact there are many publications that justifies the claim that woman are less susceptible to infection then man. [REF LANCET and OThers] The risk for a woman to get infected during a intercourse with a infected person is smaller then for a man^[Historically at first it was thought that only males can get AIDS deases which is caused by HIV virus.]. THIS REFERENCE TEST @fig-modelsexhetero
+
+
+
+ 
+```{python}
+#| label: fig-dagwrong
+#| fig-cap: DAG representing naive relation between variables resembling the first model. 'U' stands for unobserved, the rest of the labels is selfexploanatory.
+#| echo: false
+#| warning: false
+#| message: false
+#| results: hide
+#| fig-align: center
+
+
+
+
+dagWrong = nx.DiGraph()
+dagWrong.add_edges_from([('Male', 'HIV'), ('Homo', 'HIV'), ('U', 'HIV')])
+
+# Define node colors
+node_colors = {
+    'Male': '#D1E5F4',  
+    'Homo': '#D1E5F4',  
+    'U': '#AEAEAE',        
+    'HIV': '#D1E5F4'    
+}
+
+# Specify node colors in the draw function
+
+plt.figure(figsize=(3.5, 2.7))
+
+pos = nx.spring_layout(dagWrong, seed=42)
+nx.draw(dagWrong, pos, with_labels=True, node_color=[node_colors[node] for node in dagWrong.nodes()], node_size=1000)
+
+
+plt.show()
+
+
+```
+
+
+- Why non hetero woman are getting sick so common? It should be safer, mayybe confounders
+
+But does it tell us something about the casual relationship? It certainly tell us something, but we should consider a whole range of underlying causes that might be responsible for such a result. Let's look at a DAG, represented as a @fig-dagwrong, that represents the reasoning that is along the lines of the first model.
+
+
+
+The reasoning looks preatty poor, it sugggest that there is somehing 'special' about males and non-hetero sexuals that makes them to be more prone to HIV infection. Only thing that it does well is to support stereotypical view that HIV is an infection of homosexual males. So let's turn into the main goal of this work. That it is, let's search for predictors that will be better at predicting HIV infection, that perhaps underlies this simple division between hetero and non-hetero people. 
+
+What predictors should we choose? The risk factors of HIV are a subject of many studies, we can use their findings and test on our dataset. According to WHO the list of the most common risk factors is [https://www.who.int/news-room/fact-sheets/detail/hiv-aids]:
+
+
+>   - having condomless anal or vaginal sex;
+    - having another sexually transmitted infection (STI) such as syphilis, herpes, chlamydia, gonorrhoea and bacterial vaginosis;
+    - engaging in harmful use of alcohol and drugs in the context of sexual behaviour;
+    - sharing contaminated needles, syringes and other injecting equipment and drug solutions when injecting drugs;
+    - receiving unsafe injections, blood transfusions and tissue transplantation, and medical procedures that involve unsterile cutting or piercing; and
+    - experiencing accidental needle stick injuries, including among health workers.
+
+As we are intrested in testing transmission based on sexual activities we will omit injective drug users and marginal cases of medical accidents when one can got infected from a patient's blood. But what can we add is the amount of sexual partners (in a year) that a person had, logic behind that is simple, more partners means more opportunities to get infected. Also, we will focus on anal sex as choosing a risk factor, as it is the most dangerous sexual activitity whent it comes to HIV infection^[I could have tested oral sex and danger of not using protection during oral sex, but because of troubling division between passive and active oral sex, the data variable seems to be not trustworthy. It is very common to mix up what passive and active oral sex means. By definition being on a receptive end is called passive, and a person using their mouth is called active. But in the gay community division between tops and bottoms (actives and passives) understand being receptive in oral sex as an active activity.].
+
+
+```{python}
+#| echo: false
+#| fig-align: center
+#| label: fig-violinbigmales
+#| fig-cap: This is vis of males.
+
+DFPost_HIVRiskProfile = pd.read_csv("C:/Users/nikod/Documents/RProjects/hivProject/DFPost_HIVRiskProfile.csv")
+
+sns.set(style="whitegrid")
+
+custom_palette = ["#8D4585", "#56B4E9", '#FFC20A'] 
+
+from matplotlib.lines import Line2D
+
+postDF_RiskProfileMales = DFPost_HIVRiskProfile[DFPost_HIVRiskProfile['Gender'] == 1]
+postDF_RiskProfileFemales = DFPost_HIVRiskProfile[DFPost_HIVRiskProfile['Gender'] == 0]
+
+postDF_Alco1 = postDF_RiskProfileMales[postDF_RiskProfileMales['Sex_alcohol'] == 1]
+postDF_Alco0 = postDF_RiskProfileMales[postDF_RiskProfileMales['Sex_alcohol'] == 0]
+
+fig, axes = plt.subplots(2, 1, figsize=(14.5, 8.5))  
+
+sns.violinplot(data=postDF_Alco1, x="AnalPosition", y="Probability", hue="PartnersNum", order= ['no', 'active', 'passive', 'vers'], ax=axes[0], palette=custom_palette)
+axes[0].set_title("Sex After Alcohol", fontsize=20)
+axes[0].set_xlabel("Anal Sex Preference", fontsize=20)
+axes[0].set_ylabel("Probability", fontsize=20)
+
+axes[0].tick_params(axis='y', labelsize=18)
+axes[0].tick_params(axis='x', labelsize=18)
+
+legend_handles = [Line2D([0], [0], marker='o', color='w', markerfacecolor=custom_palette[0], markersize=10, label='1-10'),
+                  Line2D([0], [0], marker='o', color='w', markerfacecolor=custom_palette[1], markersize=10, label='11-50'), # '1-10', '11-50', 'above_51'
+                  Line2D([0], [0], marker='o', color='w', markerfacecolor=custom_palette[2], markersize=10, label='above 51')]
+
+
+legend1 = axes[0].legend(title="Number of Partners", loc="upper left", handles=legend_handles, fontsize=18)
+legend1.get_title().set_fontsize('18')
+legend1.get_frame().set_alpha(None)
+
+# Plot for gender = 0
+sns.violinplot(data=postDF_Alco0, x="AnalPosition", y="Probability", hue="PartnersNum", order= ['no', 'active', 'passive', 'vers'], ax=axes[1], palette=custom_palette)
+axes[1].set_title("No Sex After Alcohol", fontsize=20)
+axes[1].set_xlabel("Anal Sex Preference", fontsize=20)
+axes[1].set_ylabel("Probability", fontsize=20)
+
+axes[1].tick_params(axis='y', labelsize=18)
+axes[1].tick_params(axis='x', labelsize=18)
+
+
+legend2 = axes[1].legend(title="Number of Partners", loc="upper left", handles=legend_handles, fontsize=18)
+legend2.get_title().set_fontsize('18')
+legend2.get_frame().set_alpha(None)
+
+# unifying y axis values
+combined_data = DFPost_HIVRiskProfile["Probability"]
+y_min = combined_data.min()
+y_max = combined_data.max()
+axes[0].set_ylim(y_min, y_max)
+axes[1].set_ylim(y_min, y_max)
+
+plt.suptitle("Probability of Getting HIV Infected (Males Only)", fontsize=22)
+
+plt.tight_layout()
+plt.show()
+
+```
+
+
+
+
+```{python}
+#| echo: false
+#| fig-align: center
+#| label: fig-violinbigfemales
+#| fig-cap: Females only.
+
+sns.set(style="whitegrid")
+
+custom_palette = ["#8D4585", "#56B4E9", '#FFC20A'] 
+
+
+postDF_Alco1 = postDF_RiskProfileFemales[postDF_RiskProfileFemales['Sex_alcohol'] == 1]
+postDF_Alco0 = postDF_RiskProfileFemales[postDF_RiskProfileFemales['Sex_alcohol'] == 0]
+
+fig, axes = plt.subplots(2, 1, figsize=(14.5, 8.5))  
+
+sns.violinplot(data=postDF_Alco1, x="AnalPosition", y="Probability", hue="PartnersNum", order= ['no', 'active', 'passive', 'vers'], ax=axes[0], palette=custom_palette)
+axes[0].set_title("Sex After Alcohol", fontsize=20)
+axes[0].set_xlabel("Anal Sex Preference", fontsize=20)
+axes[0].set_ylabel("Probability", fontsize=20)
+axes[0].tick_params(axis='y', labelsize=18)
+axes[0].tick_params(axis='x', labelsize=18)
+
+legend_handles = [Line2D([0], [0], marker='o', color='w', markerfacecolor=custom_palette[0], markersize=10, label='1-10'),
+                  Line2D([0], [0], marker='o', color='w', markerfacecolor=custom_palette[1], markersize=10, label='11-50'), # '1-10', '11-50', 'above_51'
+                  Line2D([0], [0], marker='o', color='w', markerfacecolor=custom_palette[2], markersize=10, label='above 51')]
+
+
+legend1 = axes[0].legend(title="Number of Partners", loc="upper left", handles=legend_handles, fontsize=20)
+legend1.get_title().set_fontsize('18')
+legend1.get_frame().set_alpha(None)
+
+# Plot for gender = 0
+sns.violinplot(data=postDF_Alco0, x="AnalPosition", y="Probability", hue="PartnersNum", order= ['no', 'active', 'passive', 'vers'], ax=axes[1], palette=custom_palette)
+axes[1].set_title("No Sex After Alcohol", fontsize=20)
+axes[1].set_xlabel("Anal Sex Preference", fontsize=20)
+axes[1].set_ylabel("Probability", fontsize=20)
+axes[1].tick_params(axis='y', labelsize=18)
+axes[1].tick_params(axis='x', labelsize=18)
+
+legend2 = axes[1].legend(title="Number of Partners", loc="upper left", handles=legend_handles, fontsize=20)
+legend2.get_title().set_fontsize('18')
+legend2.get_frame().set_alpha(None)
+
+# unifying y axis values
+combined_data = DFPost_HIVRiskProfile["Probability"]
+y_min = combined_data.min()
+y_max = combined_data.max()
+axes[0].set_ylim(y_min, y_max)
+axes[1].set_ylim(y_min, y_max)
+
+plt.suptitle("Probability of Getting HIV Infected (Females Only)", fontsize=22)
+
+plt.tight_layout()
+plt.show()
+
+```
+
+In the @fig-violinbigmales and @fig-violinbigfemales you can see visualization of predictions created by the logistic regression model for males and females respectively. The model used the following predictors: gender, number of sexual partners (in a year), anal sex preference, having sex under the influence of alcochol. There is a striking difference between males and females, even when woman are in the most risky profile, the danger of infection is still mcuh lower than for the males. As I stated before, there are studies that are along this result caliming that woman are much less susceptible to HIV infection for bio-chemical reasons.
+
+All that factors account to the most risky profile, a male that had above $51$ sexual partners, prefers verastile anal intercourse, and does alcochol induced sex. It can be observe that any of those categories increases the probability of getting infected individually.
+
+## Next section
+
+The next step of my reaserch is to define a Risk Profile (RP) that maximizes the chances of getting HIV infected, the profile will not include sexual identity and \textbf{gender}. I will define the profile as a new binary variable in the dataset, this way will be much simpler than building a model that takes all these variables and creates a different category for all of them.      
+
+The variables that I will use to create the RP are:      
+
+- Alcochol induced sex,
+- The amount of sexual partners a year $> 10$, 
+- Anal sex preference: passive or versatile, 
+- Anal sex protection use: sometimes or never.       
+
+
+```{python}
+#| label: fig-riskprofgenderhiv
+#| fig-cap: the caption of the plot
+#| echo: false
+#| results: hide
+#| warning: false
+#| message: false
+
+with open('../DFPOST_HIv_risk_gender.pkl', 'rb') as f:
+    DFPOST_HIv_risk_gender = pickle.load(f)
+
+sns.set(style="whitegrid", font_scale=0.85) 
+
+gender_mapping = {0: "Females", 1: "Males"}
+DFPOST_HIv_risk_gender['Gender'] = DFPOST_HIv_risk_gender['Gender'].replace(gender_mapping)
+
+risk_mapping = {0: "Not risky", 1: "Risky"}
+DFPOST_HIv_risk_gender['RiskFactor'] = DFPOST_HIv_risk_gender['RiskFactor'].replace(risk_mapping)
+
+
+g = sns.FacetGrid(DFPOST_HIv_risk_gender, col='Gender')
+g.map_dataframe(sns.violinplot, x="RiskFactor", hue="RiskFactor", y="Probability",
+palette=fancyMine1)
+plt.xlabel("")
+plt.ylabel("Probability")
+
+g.set_axis_labels('', 'Probability')
+g.set_titles(col_template = '{col_name}')
+
+
+g.fig.subplots_adjust(top=0.77)
+g.fig.suptitle('Probability of Getting HIV Infected')
+
+plt.show()
+
+
+
+#posterior_model1 = az.from_numpyro(HIV_HIGHRISKGenoOne)
+#posterior_model2 = az.from_numpyro(HIV_HIGHRISKVarOne)
+
+#waic_results = az.compare({"model1": posterior_model1, "model2": posterior_model2}, ic="waic")
+
+
+```
+
+
+
+In the @fig-riskprofgenderhiv, that represents the probability of getting infected for the RP, we can observe that the probability for males that are in the RP group is bigger then a probability in our first model (represented in the @fig-modelsexhetero), that showed high probability of infection for non-hetero males. It suggests that RP profile holders are at greater risk of infection then non-hetero males. But what is the relation between those two variables? We will test with our next model.
+\todo{Let's maybe run WAIC test to compare those two models}
+
+```{python}
+#| echo: false
+#| label: fig-twinriskprob
+#| fig-cap: "twin visualization"
+#| results: hide
+
+# DFPost_Post_RISK_NormGendernoHetero.pkl
+# DFPost_POST_RISK_Hetero.pkl
+
+with open('../DFPost_Post_RISK_NormGendernoHetero.pkl', 'rb') as f:
+    DFPost_Post_RISK_NormGendernoHetero = pickle.load(f)
+
+
+
+fig, axs = plt.subplots(1, 2, figsize=(12, 6), sharey=True,)
+
+
+gender_mapping = {"0": "Females", "1": "Males"}
+DFPost_Post_RISK_NormGendernoHetero['Gender'] = DFPost_Post_RISK_NormGendernoHetero['Gender'].replace(gender_mapping)
+
+sns.violinplot(data=DFPost_Post_RISK_NormGendernoHetero, x="Gender", y="Probability", ax=axs[0], palette= fancyMine1)
+axs[0].set_xlabel("")
+axs[0].tick_params(axis='y', labelsize=18)
+axs[0].tick_params(axis='x', labelsize=18)
+
+axs[0].set_ylabel("Probability", fontsize=18)
+
+
+# second vis
+
+with open('../DFPost_POST_RISK_Hetero.pkl', 'rb') as f:
+    DFPost_POST_RISK_Hetero = pickle.load(f)
+
+
+hetero_mapping = {"0": "Non hetero", "1": "Hetero"}
+DFPost_POST_RISK_Hetero['HeteroNorm'] = DFPost_POST_RISK_Hetero['HeteroNorm'].replace(hetero_mapping)
+
+
+sns.violinplot(DFPost_POST_RISK_Hetero, x="HeteroNorm", y="Probability", ax=axs[1], order= ['Hetero', 'Non hetero'], palette= fancyMine1)
+axs[1].set_xlabel("")
+axs[1].set_ylabel("")
+axs[1].tick_params(axis='y', labelsize=18)
+axs[1].tick_params(axis='x', labelsize=18)
+
+
+axs[0].set_ylim(0, 0.06)
+axs[1].set_ylim(0, 0.06)
+
+# Adjust the layout
+plt.tight_layout()
+
+fig.subplots_adjust(top=0.83)
+fig.suptitle("Combined Title", fontsize=22)
+# Show the subplots
+plt.show()
+
+
+# DFPost_Post_RISK_NormGender.pkl
+
+
+```
+
+
+In this pair of visualizations at @fig-twinriskprob we cann see the models that were give as predictors respectivaly a gender and sexual identity to predict being in the most risky group. As it can be seen non-hetero people and males has the highest probability in being in that group. 
+
+Getting back to representing the causes of getting HIV infected. The variables that increases the probability of getting HIV infected are better at getting you infected, therefore taking them as causes is more reasonable. The DAG that will represent the relation between the consdiered variables, after our analysis will look somewhere like this one @fig-postdag.
+
+
+```{python}
+#| label: fig-postdag
+#| fig-cap: 'This DAG represents the relationship between demographic variables, RP - risk profile and getting HIV infected.'
+#| echo: false
+
+
+
+dag2 = nx.DiGraph()
+dag2.add_edges_from([('Male', 'RP'), ('Homo', 'RP'), ('U', 'RP'), ('RP', 'HIV')])
+
+# Define node colors
+node_colors = {
+    'Male': '#D1E5F4',  
+    'Homo': '#D1E5F4',  
+    'U': '#AEAEAE',        
+    'RP': '#D1E5F4',  
+    'HIV': '#D1E5F4' 
+}
+
+
+plt.figure(figsize=(3.5, 2.7))
+
+pos = nx.spring_layout(dag2, seed=42)
+nx.draw(dag2, pos, with_labels=True, node_color=[node_colors[node] for node in dag2.nodes()], node_size=1000)
+
+
+plt.show()
+
+
+```
+
+## Conclusions
+
+In this @fig-postdag the DAG represents the relationshiop between predictors that we analyzed. It seems to represent the cause and effect more accurately, then just relying on a fact that non-hetero males are 'special' in some way and it makes them to get HIV infected. In fact non-hetero males has high probability of being in a RP group, risky behaviours assocaited with RP status are the causes of getting HIV infected. It includes having anal intercourse and high amount of sexual partners which is associated with non-hetero males. The reason why non-hetero males choses to be in that group is not-known, this fact is represented with Unobserved node. 
+
+Is the stereotype tru then? Well non-hetero males are in the highest risk of getting HIV infected, but their sexual identity is not a direct cause of that. Hetero sexual male that enjoys simmilar activities, so is in a RP also has higher chances of getting infected. The more direct cause is risky behaviour, and non-hetero males tend to engage in more risky behaviours. Therefore the story is more complicated. One thing is certain, the sole fact of being non-hetero person does not make you more susceptible to getting HIV infected.
+
+Interesting observation that is in a field of interest of specialist from different science branches is the fact that woman gets infected far less often than males. My analyzis has confirmed that fact.
+
+One thing worth attention is a worrying growth of new HIV infections in Europe. The mentioned stereotype might have a negative effect on public opinion, as hetero people might feel too confident about not getting infected, as this infection is associate mainly in non-hetero males. This analyzis showed that there is a risky behaviour pattern that all the people should know about that it can lead to HIV infection. In fact, as we have seen at the beginning, hetero males tend to test themselves much less often that non-hetero males.
+
