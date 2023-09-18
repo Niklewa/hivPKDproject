@@ -72,7 +72,7 @@ The stereotype of HIV as "the disease of gays" still persists. In this study, I 
 - Are homosexual individuals at a higher risk than heterosexuals?
 - Is HIV primarily an infection among gay males, and does the stereotype hold true that there is something 'special' about this group explaining this phenomenon?
 
-I will attempt to answer these questions by analyzing surveys conducted in Polish HIV testing centers known as PKDs (Pol. Punkt Konsultacyjno Diagnostyczny - Diagnostic Consultation Center). At least one such center exists in every major administrative region in Poland (Voivodeship). Testing at these centers is always anonymous, free of charge, and safe. Medical professionals at these centers interview clients and qualify them for testing, including a section of the survey focused on their sexual history.
+I will attempt to answer these questions by analyzing surveys conducted in Polish HIV testing centers known as PKDs (Pol. [Punkt Konsultacyjno Diagnostyczny](https://aids.gov.pl/pkd/) - Diagnostic Consultation Center). At least one such center exists in every major administrative region in Poland (Voivodeship). Testing at these centers is always anonymous, free of charge, and safe. Medical professionals at these centers interview clients and qualify them for testing, including a section of the survey focused on their sexual history.
 
 The data were collected from 2015 to 2022^[The dataset was obtained with the cooperation of PKD officials, the files are available on my GitHub project.], comprising responses from over 250,000 individuals. It is important to note that this dataset does not provide accurate information on the number of new infections, as there are various other places in Poland where HIV infection can be diagnosed. Therefore, our focus is on the survey questions. The visualizations below depict the demography of the survey (@fig-demography). The left plot illustrates the gender distribution^[22 individuals identified as 'Different' gender; however, their number is too small to be considered significant and is therefore excluded from the analysis]. Notably, the majority of clients are males, and non-heteronormative males constitute half of all male clients, a higher proportion than in the general population. Females, on the other hand, are represented more proportionally.
 
@@ -82,14 +82,17 @@ One thing to note, due to the survey's anonymity, individuals who test themselve
 
 The question arises: Is there indeed something distinctive about non-heteronormative males that makes them more susceptible to HIV infection? I will attempt to answer this question by examining causal relationships among various predictors, with a focus on identifying variables that best predict HIV positivity.
 
+In the first section, I will begin by establishing a basic logistic regression model that demonstrates the relationship between gender, sexual identity, and the probability of HIV infection. The subsequent step involves an exploration of whether a causal connection between these variables is plausible. Following this, I delve into the quest for more robust predictors. During this investigation, I identify superior predictors and formulate a risk profile (RP), which exhibits a higher probability of infection.
 
-**DESCRIPTION**
+Remarkably, the group most likely to be within the RP comprises non-heteronormative males, shedding further light on the causal relationships among the aforementioned predictors. This relationship is visually represented with a Directed Acyclic Graph (DAG) at the conclusion of the study
+
+These findings challenge the stereotype, asserting that the primary cause of HIV infection is not one's sexual identity but rather risky behavior.
 
 
 ```{python}
 #| label: fig-demography
 #| echo: false
-#| fig-cap: The plot on the left represents the distriubtion of gender and sexual identity of the people in the dataset. The plot on the right represents the ration of gender and sexual identity among the tested positive individuals.
+#| fig-cap: The plot on the left represents the distribution of gender and sexual identity of the people in the dataset. The plot on the right represents the ratio of gender and sexual identity among the individuals who tested positive.
 #| fig-pos: 'H'
 
 
@@ -156,7 +159,7 @@ plt.show()
 
 ## Exploring HIV Risk Factors and Predictors
 
-Let's begin by constructing a model aimed at predicting HIV infection based on known variables: gender and sexual identity. All statistical models in this project were built using the 'numpyro' package in Python (https://num.pyro.ai/en/latest/index.html#introductory-tutorials). It's a simplified version of the 'pyro' package, both of which focus on providing tools for probabilistic data analysis, including the creation of advanced hierarchical models. Specifically, I employed Bayesian-style logistic regression. The primary distinction in these models lies in the ability to specify the prior distribution of the predictors. The model is run using the No-U-Turn Sampler (NUTS), a variant of Markov Chain Monte Carlo (MCMC). Here's a template of how the model looks like:
+Let's begin by constructing a model aimed at predicting HIV infection based on known variables: gender and sexual identity. All statistical models in this project were built using the 'numpyro' package in Python^[The package documentation can be found [here](https://num.pyro.ai/en/latest/index.html#introductory-tutorials).] . It's a simplified version of the 'pyro' package, both of which focus on providing tools for probabilistic data analysis, including the creation of advanced hierarchical models. Specifically, I employed Bayesian-style logistic regression. The primary distinction in these models lies in the ability to specify the prior distribution of the predictors. The model is run using the No-U-Turn Sampler (NUTS), a variant of Markov Chain Monte Carlo (MCMC). Here's a template of how the model looks like:
 
 \footnotesize
 
@@ -194,7 +197,7 @@ Now, let's explore the relationship between our demographic predictors and the l
 
 ```{python}
 #| label: fig-modelsexhetero
-#| fig-cap: This visualization shows the prediction made by the logistic model that learned upon the dataset. Violins represent the distriubtion of probability preditction of getting HIV relative to gender and sexual identity.
+#| fig-cap: This visualization shows the predictions made by the logistic model trained on the dataset. Violins represent the distribution of probability predictions of acquiring HIV relative to gender and sexual identity.
 #| echo: false
 #| warning: false
 #| results: hide
@@ -236,7 +239,7 @@ Comparatively, the differences are significant, with non-heterosexual males appe
  
 ```{python}
 #| label: fig-dagwrong
-#| fig-cap: DAG representing naive relation between variables resembling the first model. 'U' stands for unobserved, the rest of the labels is selfexploanatory.
+#| fig-cap: DAG representing the naive relation between variables resembling the first model. 'U' stands for unobserved, while the rest of the labels are self-explanatory.
 #| echo: false
 #| warning: false
 #| message: false
@@ -293,7 +296,7 @@ Since we are specifically interested in examining transmission based on sexual a
 #| echo: false
 #| fig-align: center
 #| label: fig-violinbigmales
-#| fig-cap: This is vis of males.
+#| fig-cap: In this visualization, you can observe various categories considered as contributors to a risky profile. This plot focuses solely on males.
 
 DFPost_HIVRiskProfile = pd.read_csv("../savedBits/DFPost_HIVRiskProfile.csv")
 
@@ -363,7 +366,7 @@ plt.show()
 #| echo: false
 #| fig-align: center
 #| label: fig-violinbigfemales
-#| fig-cap: Females only.
+#| fig-cap: This is a twin visualization covering risky categories. This plot focuses exclusively on females, and the difference in the probability of getting infected is striking.
 
 sns.set(style="whitegrid")
 
@@ -435,7 +438,7 @@ The variables I will use to create the RP are:
 
 ```{python}
 #| label: fig-riskprofgenderhiv
-#| fig-cap: the caption of the plot
+#| fig-cap: The visualization represents the probability of getting infected for RP holders, divided into females and males.
 #| echo: false
 #| results: hide
 #| warning: false
@@ -485,7 +488,7 @@ In Figure @fig-riskprofgenderhiv, which represents the probability of infection 
 ```{python}
 #| echo: false
 #| label: fig-twinriskprob
-#| fig-cap: "twin visualization"
+#| fig-cap: "The visualization represents the probability of being in RP, with a division by gender on the left and by sexual identity on the right."
 #| results: hide
 
 # DFPost_Post_RISK_NormGendernoHetero.pkl
@@ -534,7 +537,7 @@ axs[1].set_ylim(0, 0.06)
 plt.tight_layout()
 
 fig.subplots_adjust(top=0.83)
-fig.suptitle("Combined Title", fontsize=22)
+fig.suptitle("Probability of Risk Profile", fontsize=22)
 # Show the subplots
 plt.show()
 
@@ -552,7 +555,7 @@ Returning to representing the causes of HIV infection, the variables that increa
 
 ```{python}
 #| label: fig-postdag
-#| fig-cap: 'This DAG represents the relationship between demographic variables, RP - risk profile and getting HIV infected.'
+#| fig-cap: 'This DAG represents the relationship between demographic variables, the RP (risk profile), and HIV infection.'
 #| echo: false
 
 
