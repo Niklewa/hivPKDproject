@@ -9,6 +9,7 @@ format:
         sansfont: Times New Roman
 urlcolor: blue
 fontsize: 12pt
+bibliography: [LIBhiv.bib]
 execute: 
   cache: true
 ---
@@ -34,7 +35,7 @@ import networkx as nx
 # please read the readme file to navigate easily through that project
 
 
-# palletes
+# color palletes:
 
 pallette_colBlindPair1 = ["#DDCC77", "#88CCEE"] 
 fancyMine1 = ["#024b7a", "#44b7c2"]
@@ -55,9 +56,9 @@ fancyMine1 = ["#024b7a", "#44b7c2"]
 
 ## Introduction
 
-The year 1980 is proclaimed as the start of HIV epidemic, from that time many scientist around the world are trying their best to find new ways of prtecting global public from the infection and treating the people that got infected. Because of the aweranes that grew, and breakthrough medical achievemnts it is easy now to detect HIV virus in the blood of an individual, and we know that using condoms and PrEP is an effective way of not getting infected.           
+The year 1980 is proclaimed as the start of HIV epidemic, from that time many scientist around the world are trying their best to find new ways of prtecting global public from the infection and treating the people that got infected @Sharp2011. Because of the aweranes that grew, and breakthrough medical achievemnts it is easy now to detect HIV virus in the blood of an individual, and we know that using condoms and PrEP is an effective way of not getting infected.           
 
-Thanks to that the global amount of new infections get very low, and in the developed countries, thanks to the new ways of treatment, people that are infected can live as long as not infected people. The global rate of infections is thankfully still getting lower. But from some time in some well developed countries we can see worrying spikes of new infections, HIV infections are growing. It is visible in the European Union (EU) where the common new number of infections is rising from some time. One of the factors is the globall Covid-19 epidemic that caused people to not getting tested for HIV (which is visible in our dataset). Poland is one of the countries where to problem is getting worse.           
+Thanks to that the global amount of new infections get very low, and in the developed countries, thanks to the new ways of treatment, people that are infected can live as long as not infected people. The global rate of infections is thankfully still getting lower @unaidsGlobalAIDS. But from some time in some well developed countries we can see worrying spikes of new infections, HIV infections are growing. It is visible in the European Union (EU) where the common new number of infections is rising from some time @EUHIV20212022. One of the factors is the globall Covid-19 epidemic that caused people to not getting tested for HIV (which is visible in our dataset). Poland is one of the countries where to problem is getting worse.           
 
 From the beggining of the HIV epidemic, this various was assosiated with non-heteronormative people, mostly with males. In those years gay man were much less accepted then other sexual identities. Gay clubs were one of the types of places where they can feel free, safe and accepted. Being anonymous was a virtue, and a behaviour of having anonymous sex with random people was an occurence for some. Before the knowledge about HIV using condoms was much less populat, therfore this kind of  sexual behaviour was very risky.   
 
@@ -70,7 +71,7 @@ This stereotype of HIV being "the deases of gays" is still strong. In this work 
 
 I will try to answer these question by the analyzis of surveys conducteed in Polish HIV testing centres. The testing centres are called PKDs (pol. Punkt Konsultacyjno Diagnostyczny - Diagnostic Consultation Center), there is at least one in every major administratory region in Poland (Voivodeship). Testing there is always: anonymous, free of charge and save. The clients of this centre are always surveyed by the medical professional that qualifies them for a test. The survey has many interesting varioubles, some we will put to the test as the one of the survey's section is centred around sexual life.     
 
-The data were collected from 2015 to 2022, and have more than $250 000$ respondents. One thing to remember, this dataset is not an accurate source of information on the \textbf{number of new infections}, as there are various other places in Poland that can diagnose HIV, therefore we are focusing on the survey questions.  On the visualizations below you can see the demography of the survey. PLot on the left represents the share of gender^[22 people identified as 'Different' gender their number is to small to be considered significant, therefore there are excluded from the analysis.] and sexual identity among the PKD clients. Majority of the clients are males, interestingly non-hetero normative males are the half of all the male clients, therefore much more than there are non-hetero normative man in the population. Females however are represented far more accurately.
+The data were collected from 2015 to 2022^[I obtained this dataset because of the good will of PKD officcials, the files can be found in my github project.], and have more than $250$ thousand respondents. One thing to remember, this dataset is not an accurate source of information on the \textbf{number of new infections}, as there are various other places in Poland that can diagnose HIV, therefore we are focusing on the survey questions.  On the visualizations below you can see the demography of the survey. PLot on the left represents the share of gender^[22 people identified as 'Different' gender their number is to small to be considered significant, therefore there are excluded from the analysis.] and sexual identity among the PKD clients. Majority of the clients are males, interestingly non-hetero normative males are the half of all the male clients, therefore much more than there are non-hetero normative man in the population. Females however are represented far more accurately.
 
 The plot on the right represents sexual identity and gender among HIV positive test results^[Those people that will be considered HIV positive in this analysis had two tests, one the usual screening test that yiellded positive result, and the second that measured the amount of HIV virus in the blood, that confirmed the first result]. Around $70\%$ of HIV positive people are non-hetero normative males. The result motivates further analysis, as it turned out that non-hetero norm. males are far more susiceptable to getting infected. The one positive thing about thatm is that this group of people seems to be aware of the danger, since there are over represented as a group of people that test themselves. One thing to note, in the dataset every client has their unique ID number, but as the survey is fully anonymous, people that test themselves regurarly will not be represented as one person, and some people that regurarly has MSM (sex between two males) justify that test themselves e.g. monthly. This might be a reason (or one of the reasons) why this group is overrepresented. 
 
@@ -84,10 +85,8 @@ The question arises, is it true then that there is something special about non-h
 #| fig-pos: 'H'
 
 
-# Load the data
-PKD_model_DF = pd.read_csv("../dataBits/PKD_model_DF.csv")
 
-# Create a figure with two subplots in one row and two columns
+PKD_model_DF = pd.read_csv("../dataBits/PKD_model_DF.csv")
 fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
 # 1st plot - Gender Distribution by Sexual Identity
@@ -136,11 +135,10 @@ def percentage_formatter(x, pos):
 
 ax2.yaxis.set_major_formatter(FuncFormatter(percentage_formatter))
 
-# Set y-axis ticks from 0 to 70 by 10
 ax2.set_yticks([0.0, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70])
 
 
-# Show the subplots
+
 plt.tight_layout()
 plt.show()
 
@@ -152,7 +150,7 @@ plt.show()
 
 Let's first try to build a model that will trying to predict being HIV infected based on variables that we already know, so sex and sexual identity. All the statistical models in this project where build using 'numpyro' pacakage in python [link to package documentation]. It is a simplified version of 'pyro' package, both are focused on delivering tools for probabilistc data analyysis, including building advanced hiercharchical models. I used bayesian style logistic regression, the main difference in this kind of models is the possibility to choose how a prior distribution of the predictors ought to look like. The models use quadratic aproximation...
 
-Let's see how the relation between our demographical predictors and being HIV positive look like. In the Figure @FigModelSexHetero you can see the prediction made by the model that as predictors took Gender and sexual identity of the clients. The violins represent the distriubtion of predictions, they are not singel point estimates. It is characteristic for bayesian aproach to always interpreteae distributions as they convey more information than e.g. mean, or statistical tests.
+Let's see how the relation between our demographical predictors and being HIV positive look like. In the Figure @fig-modelsexhetero you can see the prediction made by the model that as predictors took Gender and sexual identity of the clients. The violins represent the distriubtion of predictions, they are not singel point estimates. It is characteristic for bayesian aproach to always interpreteae distributions as they convey more information than e.g. mean, or statistical tests.
 
 
 
@@ -175,7 +173,7 @@ postDF_Hetero_Gender['Gender'] = postDF_Hetero_Gender['Gender'].replace(gender_m
 
 sex_ident_order = ['Hetero', 'Non-hetero']
 
-# Reorder the SexIdent categories in the DataFrame
+
 postDF_Hetero_Gender['SexIdent'] = pd.Categorical(postDF_Hetero_Gender['SexIdent'], categories=sex_ident_order, ordered=True)
 
 sns.set(style="whitegrid", font_scale=0.85)  # Adjust font_scale as needed (0.9 makes it slightly smaller)
@@ -194,7 +192,7 @@ plt.show()
 
 ```
 
-Comparitivly the difference is significant, and non-heterosexual males seems to be at the highest risk of getting infected (when no other causes are considered). But there is also difference between genders, males again are at grater risk. In fact there are many publications that justifies the claim that woman are less susceptible to infection then man. [REF LANCET and OThers] The risk for a woman to get infected during a intercourse with a infected person is smaller then for a man^[Historically at first it was thought that only males can get AIDS deases which is caused by HIV virus.]. THIS REFERENCE TEST @fig-modelsexhetero
+Comparitivly the difference is significant, and non-heterosexual males seems to be at the highest risk of getting infected (when no other causes are considered). But there is also difference between genders, males again are at grater risk. In fact there are many publications that justifies the claim that woman are less susceptible to infection then man @Beyrer2012. The risk for a woman to get infected during a intercourse with a infected person is smaller then for a man^[Historically at first it was thought that only males can get AIDS deases which is caused by HIV virus.]. THIS REFERENCE TEST @fig-modelsexhetero
 
 
 
@@ -222,8 +220,6 @@ node_colors = {
     'HIV': '#D1E5F4'    
 }
 
-# Specify node colors in the draw function
-
 plt.figure(figsize=(3.5, 2.7))
 
 pos = nx.spring_layout(dagWrong, seed=42)
@@ -244,7 +240,7 @@ But does it tell us something about the casual relationship? It certainly tell u
 
 The reasoning looks preatty poor, it sugggest that there is somehing 'special' about males and non-hetero sexuals that makes them to be more prone to HIV infection. Only thing that it does well is to support stereotypical view that HIV is an infection of homosexual males. So let's turn into the main goal of this work. That it is, let's search for predictors that will be better at predicting HIV infection, that perhaps underlies this simple division between hetero and non-hetero people. 
 
-What predictors should we choose? The risk factors of HIV are a subject of many studies, we can use their findings and test on our dataset. According to WHO the list of the most common risk factors is [https://www.who.int/news-room/fact-sheets/detail/hiv-aids]:
+What predictors should we choose? The risk factors of HIV are a subject of many studies, we can use their findings and test on our dataset. According to WHO the list of the most common risk factors is @whoAIDS:
 
 
 >   - having condomless anal or vaginal sex;
@@ -560,3 +556,4 @@ Interesting observation that is in a field of interest of specialist from differ
 
 One thing worth attention is a worrying growth of new HIV infections in Europe. The mentioned stereotype might have a negative effect on public opinion, as hetero people might feel too confident about not getting infected, as this infection is associate mainly in non-hetero males. This analyzis showed that there is a risky behaviour pattern that all the people should know about that it can lead to HIV infection. In fact, as we have seen at the beginning, hetero males tend to test themselves much less often that non-hetero males.
 
+#  References {-}

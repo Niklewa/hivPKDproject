@@ -1,0 +1,58 @@
+@Article{Beyrer2012,
+  author           = {Chris Beyrer and Stefan D Baral and Frits van Griensven and Steven M Goodreau and Suwat Chariyalertsak and Andrea L Wirtz and Ron Brookmeyer},
+  journal          = {The Lancet},
+  title            = {Global epidemiology of {HIV} infection in men who have sex with men},
+  year             = {2012},
+  month            = jul,
+  number           = {9839},
+  pages            = {367--377},
+  volume           = {380},
+  doi              = {10.1016/s0140-6736(12)60821-6},
+  modificationdate = {2023-09-18T14:11:45},
+  publisher        = {Elsevier {BV}},
+  url              = {https://doi.org/10.1016/s0140-6736(12)60821-6},
+}
+
+@Misc{whoAIDS,
+  howpublished     = {\url{https://www.who.int/news-room/fact-sheets/detail/hiv-aids}},
+  note             = {[Accessed 18-09-2023]},
+  title            = {{H}{I}{V} and {A}{I}{D}{S} --- who.int},
+  year             = {2023},
+  modificationdate = {2023-09-18T14:20:55},
+}
+
+@Article{Sharp2011,
+  author           = {P. M. Sharp and B. H. Hahn},
+  journal          = {Cold Spring Harbor Perspectives in Medicine},
+  title            = {Origins of {HIV} and the {AIDS} Pandemic},
+  year             = {2011},
+  month            = sep,
+  number           = {1},
+  pages            = {a006841--a006841},
+  volume           = {1},
+  doi              = {10.1101/cshperspect.a006841},
+  modificationdate = {2023-09-18T14:22:25},
+  publisher        = {Cold Spring Harbor Laboratory},
+  url              = {https://doi.org/10.1101/cshperspect.a006841},
+}
+
+@Book{EUHIV20212022,
+  author           = {{European Centre for Disease Prevention and Control} and {World Health Organization}},
+  publisher        = {European Centre for Disease Prevention and Control},
+  title            = {HIV/AIDS surveillance in Europe 2022 : 2021 data},
+  year             = {2022},
+  doi              = {10.2900/818446},
+  modificationdate = {2023-09-18T14:27:39},
+  place            = {SE},
+  url              = {https://data.europa.eu/doi/10.2900/818446},
+}
+
+@Misc{unaidsGlobalAIDS,
+  howpublished     = {\url{https://www.unaids.org/en/resources/fact-sheet}},
+  note             = {[Accessed 18-09-2023]},
+  title            = {{G}lobal {H}{I}{V} & {A}{I}{D}{S} statistics — {F}act sheet --- unaids.org},
+  year             = {2023},
+  modificationdate = {2023-09-18T14:29:48},
+}
+
+@Comment{jabref-meta: databaseType:bibtex;}
