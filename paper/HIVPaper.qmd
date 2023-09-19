@@ -29,10 +29,11 @@ import numpy as np
 import pandas as pd
 import pickle
 import networkx as nx
+import subprocess
 
 
-# complex data wrangling and model building is kept in seperate files,
-# please read the readme file to navigate easily through that project
+# Complex data wrangling and model building is kept in seperate files,
+# please read the readme file to navigate easily through the project
 
 
 # color palletes:
@@ -95,7 +96,7 @@ These findings challenge the stereotype, asserting that the primary cause of HIV
 #| fig-cap: The plot on the left represents the distribution of gender and sexual identity of the people in the dataset. The plot on the right represents the ratio of gender and sexual identity among the individuals who tested positive.
 #| fig-pos: 'H'
 
-
+# File containing the wrangling of a dataset: ../pythonCode/DataWranglinfForHomoCasualityCheck.py
 
 PKD_model_DF = pd.read_csv("../dataBits/PKD_model_DF.csv")
 fig, axes = plt.subplots(1, 2, figsize=(12, 5))
@@ -191,7 +192,7 @@ HIV_HetreoNorm_Gender.run(random.PRNGKey(0), **dat_listGender)
 
 \normalsize
 
-Now, let's explore the relationship between our demographic predictors and the likelihood of being HIV positive. In Figure @fig-modelsexhetero, you can observe predictions made by the model, which utilized gender and sexual identity as predictors. The violin plots represent the distribution of predictions, rather than single point estimates. This approach aligns with the Bayesian methodology, as it conveys more information than, for instance, just a mean or statistical tests.
+Now, let's explore the relationship between our demographic predictors and the likelihood of being HIV positive. In @fig-modelsexhetero, you can observe predictions made by the model, which utilized gender and sexual identity as predictors. The violin plots represent the distribution of predictions, rather than single point estimates. This approach aligns with the Bayesian methodology, as it conveys more information than, for instance, just a mean or statistical tests.
 
 
 
@@ -203,6 +204,8 @@ Now, let's explore the relationship between our demographic predictors and the l
 #| results: hide
 #| message: false
 #| fig-pos: 'H'
+
+# File containing the model training: ../pythonCode/MLogit_Partners_Heteronorm_gender.py
 
 with open('../savedBits/postDF_Hetero_Gender.pkl', 'rb') as f:
     postDF_Hetero_Gender = pickle.load(f)
@@ -271,9 +274,6 @@ plt.show()
 
 ```
 
-
-- Why non hetero woman are getting sick so common? It should be safer, mayybe confounders
-
 But does this information provide us with insights into causal relationships? It certainly provides some insights, but we should consider a wide range of underlying causes that might be responsible for such results. Let's examine a Directed Acyclic Graph (DAG), represented as @fig-dagwrong, which reflects the reasoning of the initial model
 
 
@@ -297,6 +297,8 @@ Since we are specifically interested in examining transmission based on sexual a
 #| fig-align: center
 #| label: fig-violinbigmales
 #| fig-cap: In this visualization, you can observe various categories considered as contributors to a risky profile. This plot focuses solely on males.
+
+# File containing the model training: ../pythonCode/MLog_homRIskProfiler.py
 
 DFPost_HIVRiskProfile = pd.read_csv("../savedBits/DFPost_HIVRiskProfile.csv")
 
@@ -367,6 +369,9 @@ plt.show()
 #| fig-align: center
 #| label: fig-violinbigfemales
 #| fig-cap: This is a twin visualization covering risky categories. This plot focuses exclusively on females, and the difference in the probability of getting infected is striking.
+
+
+# File containing the model training: ../pythonCode/MLog_homRIskProfiler.py
 
 sns.set(style="whitegrid")
 
@@ -444,6 +449,9 @@ The variables I will use to create the RP are:
 #| warning: false
 #| message: false
 
+
+# File containing the model training: ../pythonCode/MLog_DataHIGHRISKProfile.py
+
 with open('../savedBits/DFPOST_HIv_risk_gender.pkl', 'rb') as f:
     DFPOST_HIv_risk_gender = pickle.load(f)
 
@@ -472,18 +480,11 @@ g.fig.suptitle('Probability of Getting HIV Infected')
 plt.show()
 
 
-
-#posterior_model1 = az.from_numpyro(HIV_HIGHRISKGenoOne)
-#posterior_model2 = az.from_numpyro(HIV_HIGHRISKVarOne)
-
-#waic_results = az.compare({"model1": posterior_model1, "model2": posterior_model2}, ic="waic")
-
-
 ```
 
 
 
-In Figure @fig-riskprofgenderhiv, which represents the probability of infection for the RP, we can observe that the probability for males in the RP group is higher than the probability in our first model (represented in @fig-modelsexhetero), which showed a high probability of infection for non-hetero males. This suggests that RP profile holders are at a greater risk of infection than non-hetero males. But what is the relationship between these two variables? We will test this with our next model.
+In @fig-riskprofgenderhiv, which represents the probability of infection for the RP, we can observe that the probability for males in the RP group is higher than the probability in our first model (represented in @fig-modelsexhetero), which showed a high probability of infection for non-hetero males. This suggests that RP profile holders are at a greater risk of infection than non-hetero males. But what is the relationship between these two variables? We will test this with our next model.
 
 ```{python}
 #| echo: false
@@ -491,8 +492,7 @@ In Figure @fig-riskprofgenderhiv, which represents the probability of infection 
 #| fig-cap: "The visualization represents the probability of being in RP, with a division by gender on the left and by sexual identity on the right."
 #| results: hide
 
-# DFPost_Post_RISK_NormGendernoHetero.pkl
-# DFPost_POST_RISK_Hetero.pkl
+# File containing the model training: ../pythonCode/MLog_DataHIGHRISKProfile.py
 
 with open('../savedBits/DFPost_Post_RISK_NormGendernoHetero.pkl', 'rb') as f:
     DFPost_Post_RISK_NormGendernoHetero = pickle.load(f)
@@ -533,16 +533,13 @@ axs[1].tick_params(axis='x', labelsize=18)
 axs[0].set_ylim(0, 0.06)
 axs[1].set_ylim(0, 0.06)
 
-# Adjust the layout
 plt.tight_layout()
 
 fig.subplots_adjust(top=0.83)
 fig.suptitle("Probability of Risk Profile", fontsize=22)
-# Show the subplots
+
 plt.show()
 
-
-# DFPost_Post_RISK_NormGender.pkl
 
 
 ```
