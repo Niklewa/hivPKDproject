@@ -1,7 +1,9 @@
 # Bayesian Modeling of HIV Risk Factors: Confronting HIV as a Stereotypical Infection of Sexual Minorities
 
-This study challenges the stereotype associating HIV infection primarily with non-heteronormative males. Through Bayesian logistic regression models and risk profile analysis, I have uncovered that risky behaviors, rather than sexual identity or gender, are the primary drivers of HIV infection. 
-The research employs a dataset created from a survey conducted in Polish HIV diagnostic centers. Poland is currently experiencing a rise in new HIV infections, with non-heteronormative males constituting the majority ofnew cases. However, the findings reveal that high-risk behavior serves asa more accurate predictor of infection than gender or sexual identity. This highlights the complexity of the factors driving new infections among non-heteronormative males.
+This study challenges the stereotype associating HIV infection primarily with non-heteronormative males. Through Bayesian logistic regression models and risk profile analysis, I have uncovered that risky behaviors, rather than sexual identity or gender, are the primary drivers of HIV infection.   
+
+The research employs a dataset created from a survey conducted in Polish HIV diagnostic centers. Poland is currently experiencing a rise in new HIV infections, with non-heteronormative males constituting the majority ofnew cases. However, the findings reveal that high-risk behavior serves asa more accurate predictor of infection than gender or sexual identity. This highlights the complexity of the factors driving new infections among non-heteronormative males.   
+
 This research underscores the critical need for comprehensive awarenessand testing to combat the ongoing HIV epidemic. It prompts a reevalua-tion of the assumptions surrounding the causes of the domination of non-heteronormative males in new infections
 
 ## Table of Contents
