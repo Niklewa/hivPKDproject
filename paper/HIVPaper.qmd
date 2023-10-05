@@ -23,7 +23,7 @@ execute:
 # loading packages
 
 import seaborn as sns
-import arviz as az
+# import arviz as az           arviz error
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -47,11 +47,11 @@ fancyMine1 = ["#024b7a", "#44b7c2"]
 
 \begin{abstract}
 
-\textbf{Abstract:} This study challenges the stereotype associating HIV infection primarily with non-heteronormative males. Through Bayesian logistic regression models and risk profile analysis, I have uncovered that risky behaviors, rather than sexual identity or gender, are the primary drivers of HIV infection.
+\textbf{Abstract:} My goal is to challenge the stereotype associating HIV infection primarily with non-heteronormative males. Using Bayesian logistic regression models and risk profile analysis, I argue that risky behaviors, rather than sexual identity or gender, are the primary drivers of HIV infection.
 
-The research employs a dataset created from a survey conducted in Polish HIV diagnostic centers. Poland is currently experiencing a rise in new HIV infections, with non-heteronormative males constituting the majority of new cases. However, the findings reveal that high-risk behavior serves as a more accurate predictor of infection than gender or sexual identity. This highlights the complexity of the factors driving new infections among non-heteronormative males.
+The research employs a dataset created from a survey conducted in Polish HIV diagnostic centers. Poland is currently experiencing a rise in new HIV infections, with non-heteronormative males constituting the majority of new cases. However, the findings reveal that high-risk behavior serves as a better predictor of infection than gender or sexual identity. This highlights the complexity of the factors driving new infections among non-heteronormative males.
 
-This research underscores the critical need for comprehensive awareness and testing to combat the ongoing HIV epidemic. It prompts a reevaluation of the assumptions surrounding the causes of the domination of non-heteronormative males in new infections.
+This research underscores the critical need for comprehensive awareness and testing to combat the ongoing HIV epidemic. It prompts a reevaluation of the assumptions surrounding the causes of the domination of non-heteronormative males among newly infected new infections.
 
 \end{abstract}
 
@@ -67,7 +67,7 @@ As a result, the global number of new infections has significantly decreased, th
 
 From the beginning of the HIV epidemic, this virus has been associated with non-heteronormative individuals, predominantly males. During those years, gay men faced less acceptance compared to other sexual identities. Gay clubs provided a safe and accepting environment where anonymity was valued, and engaging in anonymous sexual encounters was not uncommon. Before the awareness of HIV, the use of condoms was less prevalent, making such sexual behavior highly risky. 
 
-The stereotype of HIV as "the disease of gays" still persists. In this study, I aim to challenge this stereotype by analyzing the causes of HIV infections, focusing on causal relationships. The main questions addressed in this work are:
+PROBLEMATIC PASSAGE The stereotype of HIV as "the disease of gays" still persists. In this study, I aim to challenge this stereotype by analyzing the causes of HIV infections, focusing on causal relationships. The main questions addressed in this work are:
 
 - Do males in general have a higher probability of contracting HIV?
 - Are homosexual individuals at a higher risk than heterosexuals?
@@ -93,8 +93,10 @@ These findings challenge the stereotype, asserting that the primary cause of HIV
 ```{python}
 #| label: fig-demography
 #| echo: false
-#| fig-cap: The plot on the left represents the distribution of gender and sexual identity of the people in the dataset. The plot on the right represents the ratio of gender and sexual identity among the individuals who tested positive.
+#| fig-cap: The left plot shows the dataset's gender and sexual identity distribution, while the right plot displays the ratio among those who tested positive.
 #| fig-pos: 'H'
+
+
 
 # File containing the wrangling of a dataset: ../pythonCode/DataWranglinfForHomoCasualityCheck.py
 
@@ -229,10 +231,9 @@ g.set_axis_labels('', 'Probability')
 g.set_titles(col_template = '{col_name}')
 
 g.fig.subplots_adjust(top=0.77)
-g.fig.suptitle('Probability of Getting HIV Infected')
+g.fig.suptitle('Probability of HIV Infection')
 
 plt.show()
-
 
 ```
 
