@@ -195,6 +195,12 @@ HIV_HetreoNorm_Gender.run(random.PRNGKey(0), **dat_listGender)
 
 \normalsize
 
+The model defines following parameters: a, the intercept term in the logistic regression model. It captures the baseline log-odds of HIV infection when all other predictors are zero, b and c which are vectors of coefficients assoicated with given predictors. 
+
+The log-odds of HIV infection (`logit_p`) are calculated as a linear combination of the intercept `a`, the effects of `Hetero_normative` (`b`), and the effects of `Gender_encoded` (`c`). The logistic function will later transform these log-odds into probabilities.
+
+ In Bayesian modeling, prior distributions are assigned to model parameters to express beliefs or uncertainty before observing data. In this example, normal distributions are used as priors for `a`, `b`, and `c`. These distributions specify the range of plausible values for each parameter. The priors are not relying on any specific data, they are realtively modest, the size of data is big, so it is not a problem.
+
 Now, let's explore the relationship between our demographic predictors and the likelihood of being HIV positive. In @fig-modelsexhetero, you can observe predictions made by the model, which utilized gender and sexual identity as predictors. The violin plots represent the distribution of predictions, rather than single point estimates. This approach aligns with the Bayesian methodology, as it conveys more information than, for instance, just a mean or statistical tests.
 
 
