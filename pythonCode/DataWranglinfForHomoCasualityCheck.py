@@ -12,7 +12,7 @@ from jax import random, vmap
 
 
 
-HIVdata = pd.read_csv("C:\\Users\\nikod\\Documents\\RProjects\\hivProject\\PKDjoint.csv")
+HIVdata = pd.read_csv("C:/Users/nikod/Documents/PythonProjects/hivPKDproject/dataBits/PKDjoint.csv")
 
 HIVdata.columns
 
