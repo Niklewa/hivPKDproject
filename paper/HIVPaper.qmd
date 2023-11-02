@@ -2,7 +2,7 @@
 title: "Confronting HIV as a Stereotypical Infection of Sexual Minorities"
 author: "Nikodem Lewandowski"
 format:
-    pdf:
+    latex:
         include-in-header: quartoStyle.sty
         mainfont: Times New Roman
         sansfont: Times New Roman
@@ -58,7 +58,7 @@ This research underscores the critical need for comprehensive awareness and test
 \vspace{12mm}
 
 
-## Introduction
+# Introduction
 
 The year 1980 is proclaimed as the start of the HIV epidemic. Since then, scientists around the world have been diligently working to find new ways to protect the global public from infection and treat those who have been infected [@Sharp2011]. Thanks to increased awareness and breakthroughs in medical achievements, it is now easier to detect the HIV virus in an individual's blood. We also know that using condoms and PrEP^[PrEP, which stands for pre-exposure prophylaxis, is a medication that significantly reduces the risk of HIV infection.] is an effective means of preventing infection.          
 
@@ -66,7 +66,7 @@ As a result, the global number of new infections has significantly decreased, th
 
 From the beginning of the HIV epidemic, this virus has been associated with non-heteronormative individuals, predominantly males. During those years, gay men faced less acceptance compared to other sexual identities. Gay clubs provided a safe and accepting environment where anonymity was valued, and engaging in anonymous sexual encounters was not uncommon. Before the awareness of HIV, the use of condoms was less prevalent, making such sexual behavior highly risky. 
 
-PROBLEMATIC PASSAGE The stereotype of HIV as "the disease of gays" still persists. In this study, I aim to challenge this stereotype by analyzing the causes of HIV infections. The main questions addressed in this work are:
+The stereotype of HIV as "the disease of gays" still persists. In this study, I aim to challenge this stereotype by analyzing the causes of HIV infections. The main questions addressed in this work are:
 
 - Do males in general have a higher probability of contracting HIV?
 - Are homosexual individuals at a higher risk than heterosexuals?
@@ -74,7 +74,7 @@ PROBLEMATIC PASSAGE The stereotype of HIV as "the disease of gays" still persist
 
 I will attempt to answer these questions by analyzing surveys^[Link to the github repository of this project can be found [here](https://github.com/Niklewa/hivPKDproject)]  conducted in Polish HIV testing centers known as PKDs (Pol. [Punkt Konsultacyjno Diagnostyczny](https://aids.gov.pl/pkd/) - Diagnostic Consultation Center). At least one such center exists in every major administrative region in Poland (Voivodeship). Testing at these centers is always anonymous, free of charge, and safe. Medical professionals at these centers interview clients and qualify them for testing, including a section of the survey focused on their sexual history.
 
-The data were collected from 2015 to 2022,^[The dataset was obtained with the cooperation of PKD officials, the files are available on my GitHub project.] comprising responses from over 250,000 individuals. However \textbf{it is not} a random sample, people that go to test themselves usually have a reason for that /todo{maybe vis of causes of test?}. It is important to note that this dataset does not provide accurate information on the number of new infections, as there are various other places in Poland where HIV infection can be diagnosed. Therefore, our focus is on the survey questions. 
+The data were collected from 2015 to 2022,^[The dataset was obtained with the cooperation of PKD officials, the files are available on my GitHub project.] comprising responses from over 250,000 individuals. However \textbf{it is not} a random sample, people that go to test themselves usually have a reason for that. It is important to note that this dataset does not provide accurate information on the number of new infections, as there are various other places in Poland where HIV infection can be diagnosed. Therefore, our focus is on the survey questions. 
 
 The visualizations below depict the demography of the survey (@fig-demography). The left plot illustrates the gender distribution.^[22 individuals identified as 'Different' gender; however, their number is too small to be considered significant and is therefore excluded from the analysis] Notably, the majority of clients are males, and non-heteronormative males constitute half of all male clients, a higher proportion than in the general population. Females, on the other hand, are represented more proportionally.
 
@@ -86,7 +86,9 @@ The question arises: Is there indeed something distinctive about non-heteronorma
 
 In the first section, I will begin by establishing a basic logistic regression model that demonstrates the relationship between gender, sexual identity, and the probability of HIV infection. The subsequent step involves an exploration of whether a causal connection between these variables is plausible. Following this, I delve into the quest for more robust predictors. During this investigation, I identify superior predictors and formulate a risk profile (RP), which exhibits a higher probability of infection.
 
-Remarkably, the group most likely to be within the RP comprises non-heteronormative males, shedding further light on the causal relationships among the aforementioned predictors. This relationship is visually represented with a Directed Acyclic Graph (DAG) at the conclusion of the study
+Remarkably, the group most likely to be within the RP comprises non-heteronormative males, shedding further light on the causal relationships among the aforementioned predictors. This relationship is visually represented with a Directed Acyclic Graph (DAG) at the conclusion of the study.
+
+In the appendix, you will find visualizations of age distribution and the causes of testing at PKD centers. It serves as a supplement to my research, providing a deeper understanding of the dataset.
 
 These findings challenge the stereotype, asserting that the primary cause of HIV infection is not one's sexual identity but rather risky behavior.
 
@@ -162,10 +164,10 @@ plt.show()
 ```
 
 
-## Exploring HIV Risk Factors and Predictors
+# Exploring HIV Risk Factors and Predictors
 
-Let's begin by constructing a model aimed at predicting HIV infection based on known variables: gender and sexual identity. All statistical models in this project were built using the 'numpyro' package in Python.^[It's a simplified version of the 'pyro' package, both of which focus on providing tools for probabilistic data analysis, including the creation of advanced hierarchical models. The package documentation can be found [here](https://num.pyro.ai/en/latest/index.html#introductory-tutorials).] 
-The Bayesian logistic regression model below examines the interplay between HIV infection (HIV), heteronormativity (Hetero_normative), and gender (Gender_encoded). All of my models follow the same template. Model parameters include the intercept term 'a' representing baseline log-odds of HIV infection, coefficients 'b' and 'c' quantifying the effects of heteronormativity and gender, respectively. The logit transformation combines these factors to calculate log-odds. Priors in the form of normal distributions are assigned to model parameters. When it comes to priors, I have selected modest parameters that have a limited impact on the posterior distributions. The relatively large size of the dataset exerts a more substantial influence. A binomial likelihood function is used for observed HIV infection data, updating parameter beliefs. The model is run using the No-U-Turn Sampler (NUTS), a variant of Markov Chain Monte Carlo (MCMC). Here's a template of what the model looks like:
+Let's begin by constructing a model aimed at predicting HIV infection based on known variables: gender and sexual identity. All statistical models in this project were built using the `numpyro` package in Python.^[It's a simplified version of the `pyro` package, both of which focus on providing tools for probabilistic data analysis, including the creation of advanced hierarchical models. The package documentation can be found [here](https://num.pyro.ai/en/latest/index.html#introductory-tutorials).] 
+The Bayesian logistic regression model below examines the interplay between HIV infection (HIV), heteronormativity (Hetero_normative), and gender (Gender_encoded). All of my models follow the same template. Model parameters include the intercept term `a` representing baseline log-odds of HIV infection, coefficients `b` and `c` quantifying the effects of heteronormativity and gender, respectively. The logit transformation combines these factors to calculate log-odds. Priors in the form of normal distributions are assigned to model parameters. When it comes to priors, I have selected modest parameters that have a limited impact on the posterior distributions. The relatively large size of the dataset exerts a more substantial influence. A binomial likelihood function is used for observed HIV infection data, updating parameter beliefs. The model is run using the No-U-Turn Sampler (NUTS), a variant of Markov Chain Monte Carlo (MCMC). Here's a template of what the model looks like:
 
 \footnotesize
 
@@ -196,12 +198,6 @@ HIV_HetreoNorm_Gender.run(random.PRNGKey(0), **dat_listGender)
 
 
 \normalsize
-
-The model defines following parameters: a, the intercept term in the logistic regression model. It captures the baseline log-odds of HIV infection when all other predictors are zero, b and c which are vectors of coefficients assoicated with given predictors. 
-
-The log-odds of HIV infection (`logit_p`) are calculated as a linear combination of the intercept `a`, the effects of `Hetero_normative` (`b`), and the effects of `Gender_encoded` (`c`). The logistic function will later transform these log-odds into probabilities.
-
- In Bayesian modeling, prior distributions are assigned to model parameters to express beliefs or uncertainty before observing data. In this example, normal distributions are used as priors for `a`, `b`, and `c`. These distributions specify the range of plausible values for each parameter. The priors are not relying on any specific data, they are realtively modest, the size of data is big, so it is not a problem.
 
 Now, let's explore the relationship between our demographic predictors and the likelihood of being HIV positive. In @fig-modelsexhetero, you can examine the predictions generated by the model, which incorporated gender and sexual identity as predictors. The violin plots depict the distribution of predictions, reflecting the marginal posterior densities derived through sampling techniques, rather than providing single point estimates. This approach aligns with the Bayesian methodology, as it conveys more information than, for instance, just a mean or statistical tests.
 
@@ -439,7 +435,7 @@ In figures: @fig-violinbigmales and @fig-violinbigfemales, you can observe visua
 
 All these factors contribute to the definition of the most high-risk profile: a male with more than 51 sexual partners, a preference for versatile anal intercourse, and engaging in alcohol-induced sex. It's evident that each of these categories individually increases the probability of infection.
 
-## Defining a High-Risk Profile for HIV Infection
+# Defining a High-Risk Profile for HIV Infection
 
 The next step involves defining a Risk Profile (RP) that maximizes the chances of HIV infection. This profile will \textbf{ exclude sexual identity and gender} in order to empasize the influence of other variables. I will introduce the profile as a new binary variable in the dataset. This approach is simpler than constructing a model that accommodates all these variables and creates different categories for each of them.   
 
@@ -584,6 +580,7 @@ node_colors = {
 
 plt.figure(figsize=(3.5, 2.7))
 
+
 pos = nx.spring_layout(dag2, seed=42)
 nx.draw(dag2, pos, with_labels=True,
     node_color=[node_colors[node] for node in dag2.nodes()], node_size=1000)
@@ -594,7 +591,7 @@ plt.show()
 
 ```
 
-## Conclusions
+# Conclusions
 
 In the @fig-postdag, the DAG represents the relationship between the predictors we analyzed. It seems to represent cause and effect more realistically than just relying on the notion that non-hetero males are 'special' in some way, leading to HIV infection. In fact, non-hetero males have a high probability of being in an RP group, and risky behaviors associated with RP status are the causes of HIV infection. This includes having anal intercourse and a high number of sexual partners, which is associated with non-hetero males. The reason why non-hetero males choose to be in that group is not known, represented by the Unobserved node.
 
@@ -603,5 +600,57 @@ Is the stereotype true then? Well, non-hetero males are at the highest risk of g
 An interesting observation in the field of interest to specialists from different scientific branches is the fact that women get infected far less often than males. 
 
 One thing worth noting is the concerning growth of new HIV infections in Europe. The mentioned stereotype might have a negative effect on public opinion, as hetero people might feel too confident about not getting infected, assuming this infection is mainly associated with non-hetero males. This analysis has shown that there is a risky behavior pattern that all people should be aware of, as it can lead to HIV infection. In fact, as we have seen at the beginning, hetero males tend to test themselves much less often than non-hetero males.
+
+
+# Appendix
+
+In this appendix, I present additional visualizations that provide further insights into the dataset used in our analysis, aligning with the principles of Exploratory Data Analysis (EDA).
+
+The first visualization, presented in  @fig-agehist , depicts the age distribution among all PKD clients. It is apparent that a substantial number of clients undergoing testing fall within the age brackets of their 20s and 30s. The 95% confidence interval for age spans from 19 to 55 years.
+
+```{python}
+#| echo: false
+#| label: fig-agehist
+#| fig-cap: Histogram of age distribution among PKD clients, the 95% confidence interval is between 19 and 55 years of age.
+#| results: hide
+#| warning: false
+#| message: false
+#| cache: false
+
+
+with open('../dataBits/ageDF.pkl', 'rb') as f:
+    ageDF = pickle.load(f)
+
+plt.hist(ageDF, bins=20,
+        edgecolor='k', alpha=1, color='#D1E5F4')
+
+
+ax = plt.gca()
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.grid(False)
+
+plt.xlabel('Age')
+plt.ylabel('')
+plt.title('Age Distribution')
+
+plt.show()
+
+lower_bound = np.percentile(ageDF, 2.5)  
+upper_bound = np.percentile(ageDF, 97.5) 
+
+
+```
+
+
+
+@fig-causes delves into the motivations driving clients to seek HIV testing at PKD facilities. It's worth noting that many clients cite multiple reasons, e.g. both heterosexual and homosexual intercourse as the cause of their visit. To present a clear picture, these causes have been aggregated to highlight the most prevalent motivations for testing.
+
+@fig-causes also provides percentages indicating the portion of clients with a specific motivation who received a positive test result. Notably, clients whose partners tested positive exhibit the highest percentage of positive results. it's worth mentioning that there were 0 cases of positive results among sex worker-related testing. This could be attributed to both a low number of clients motivated by this cause (less than 100) and a cautious approach to sexual health, potentially involving the use of PrEP.
+
+![Causes that motivated clients to test for HIV at PKD test centers (IDU stands for Injective Drug User).](../visualizations/causesplott.pdf){#fig-causes fig-align="center" width="85%"}
+
+
+\pagebreak
 
 #  References {-}

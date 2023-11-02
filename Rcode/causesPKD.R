@@ -19,7 +19,8 @@ plt_pos <- theme(plot.title.position = "plot")
 # TPR - zwykłe 
 # TPO - potwierdzone drugie (dodatni hiv)
 
-pkd <- read.csv("PKDjoint.csv")
+pkd <- read.csv("C:/Users/nikod/Documents/PythonProjects/hivPKDproject/dataBits/PKDjoint.csv")
+
 
 head(pkd)
 
@@ -28,21 +29,24 @@ colnames(pkd)
 str(pkd)
 
 
-unique(pkd$Powód)
-
-causes_list <- strsplit(pkd$Powód, "\\|")
-all_causes <- unlist(causes_list)
-unique_causes <- unique(all_causes)
-
-unique_causes <- unique_causes[complete.cases(unique_causes)]
-
-pkd_small
+pkd$TPO_wynik[is.na(pkd$TPO_wynik)] <- 0 # 0 instead of NA, so no test
 
 
+table(pkd$TPO_wynik, useNA = "ifany")      # okazja do zbadania czułości testu
+table(pkd$Orientacja, useNA = "ifany")
 
-pkd$separate_causes <- strsplit(pkd$Powód, "\\|")
-cause_counts <- table(unlist(pkd$separate_causes))
-sorted_cause_counts <- sort(cause_counts, decreasing = TRUE)
+
+pkd_small <- pkd  %>% 
+  mutate(positive = ifelse(TPO_wynik == "d", 1, 0 ))
+
+
+
+pkd_small <-pkd_small[complete.cases(pkd_small$Powód),]
+
+table(pkd_small$Powód, useNA = "ifany")
+
+
+#### Here adding a column
 
 
 
@@ -58,75 +62,95 @@ smalll2 <- smalll %>%
 
 
 
+
 smalll2 <- smalll2[complete.cases(smalll2),]
 
+write.csv(smalll2, 'groupedCausesPKD.csv')
+
+# visualization
 
 
+smalll2 <- read.csv("C:/Users/nikod/Documents/PythonProjects/hivPKDproject/dataBits/groupedCausesPKD.csv")
+
+# changing variables names
 
 
-####
+translation_dict <- list(
+  "IDU" = "IDU",
+  "IDU+biseks." = "IDU+bisexual",
+  "IDU+hetero" = "IDU+heterosexual",
+  "IDU+homo" = "IDU+homosexual",
+  "Zabieg medyczny" = "Medical procedure",
+  "ciąża" = "Pregnancy",
+  "ciąża u partnerki" = "Partner's pregnancy",
+  "inne" = "Other",
+  "k. biseksualne" = "Bisexual contacts",
+  "k. heteroseksualne" = "Heterosexual contacts",
+  "k. homoseksualne" = "Homosexual contacts",
+  "krew" = "Blood",
+  "krew+kontakty seksualne" = "Blood and sexual contacts",
+  "namowa partnera" = "Partner's persuasion",
+  "naruszenie skóry lub błony" = "Skin or mucous membrane damage",
+  "objawy osłabionej odporności" = "Symptoms of weakened immunity",
+  "początek nowego związku" = "New relationship",
+  "seks MSM" = "MSM sex",
+  "seks WSW" = "WSW sex",
+  "sex worker" = "sex worker",
+  "skierowanie przez lekarza" = "Doctor's recommendation",
+  "uszkodzenie prezerwatywy" = "Condom damage",
+  "wynik + partnera" = "Partner's positive HIV test",
+  "życzenie klienta (brak ryzyka)" = "Client's wish (no risk)"
+)
 
-pkd$TPO_wynik[is.na(pkd$TPO_wynik)] <- 0 # 0 instead of NA, so no test
+
+library(dplyr)
+
+smalll2ENG <- smalll2 %>% 
+  mutate(causes = ifelse(smalll2$Powód %in% names(translation_dict), 
+                              translation_dict[smalll2$Powód], 
+                              smalll2$Powód))
 
 
-table(pkd$TPO_wynik, useNA = "ifany")      # okazja do zbadania czułości testu
-table(pkd$Orientacja, useNA = "ifany")
-unique(df$Orientacja)
-
-# df_or <- df %>% filter(Orientacja == "biseksualna" | Orientacja ==
-#                          "heteroseksualna" |  Orientacja  ==    "homoseksualna")
-# mutate(Non_het_norm = ifelse(Orientacja == "biseksualna" | Orientacja == "homoseksualna", 1, 0)) %>% 
+str(smalll2ENG)
 
 
-pkd_small <- pkd  %>% 
-  mutate(positive = ifelse(TPO_wynik == "d", 1, 0 ))
-
-pkd_small <- pkd_small[,c(2:19,48:94,120,121)]
-
-names(pkd_small)
-
-pkd_small <-pkd_small[complete.cases(pkd_small$Powód),]
-
-table(pkd_small$Powód, useNA = "ifany")
+smalll2ENG$causes <- unlist(smalll2ENG$causes)
 
 
-# powód kontroli
-ggplot(smalll2, aes(x= reorder(Powód, count), y= count, fill= as.factor(positive)))+ geom_col()+
-  coord_flip()+  geom_text(data = subset(smalll2, positive  == 1),
+new_row <- data.frame(
+  X = 48,
+  Powód  = "sex worker",
+  positive = 1,
+  count = 0,
+  percentage =  0,
+  causes = "sex worker"
+)
+
+
+smalll2ENG <- rbind(smalll2ENG, new_row)
+
+
+causesPLT <- ggplot(smalll2ENG, aes(x= reorder(causes, count), y= count, fill= as.factor(positive)))+
+  geom_col()+
+  coord_flip()+ 
+  geom_text(data = subset(smalll2ENG, positive  == 1),
                            aes(label = paste0(round(percentage, 1), "%")), hjust = -0.2)+
-  theme_tufte()+ labs(fill = "Pozytywny:", title = "Powód wykonania badania",
-                      subtitle = "PKD, dane sumaryczne", y = "", x = "Powód")+ plt_pos
-
-
-# ilość partnerów
-
-
-
-
-# rodzaj seksu
-# kategoria gay passive | gay active
-
-pkd_small
-
-pkd_sex <- pkd_small %>% 
-  mutate(anal = case_when(
-    Kontakty_seks_rok_anal_active == 1 ~ 1,
-    Kontakty_seks_rok_anal_passive == 1 ~ 1
-    )) %>% 
-  mutate(oral = case_when(
-    Kontakty_seks_rok_oral_passive == 1 ~ 1,
-    Kontakty_seks_rok_oral_active == 1 ~ 1  
-    ))
-           
-           
-           
-           
+  theme_tufte()+ labs(fill = "HIV result:", title = "Causes of Testing", y = "", x = "") +
+  theme(plot.title = element_text(hjust = 0.15, size = 16),
+        legend.position = c(0.85, 0.15),
+        legend.title = element_text(size = 14),  
+        axis.title = element_text(size = 16),    
+        axis.text = element_text(size = 12),
+        legend.text = element_text(size = 12) )+
+  scale_fill_manual(labels = c("negative", "positive"), values = c("#44b7c2", "#024b7a"))
 
 
 
-mutate(category = case_when(
-  positive == 1 ~ "Positive",
-  positive == 0 ~ "Negative",
-  TRUE ~ "Other"
-))
+
+ggsave(filename = "C:/Users/nikod/Documents/PythonProjects/hivPKDproject/visualizations/causesplott.pdf",
+       plot = causesPLT, dpi = 300)
+
+
+
+
 
