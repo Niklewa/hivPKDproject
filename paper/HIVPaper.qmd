@@ -2,7 +2,7 @@
 title: "Confronting HIV as a Stereotypical Infection of Sexual Minorities"
 author: "Nikodem Lewandowski"
 format:
-    latex:
+    pdf:
         include-in-header: quartoStyle.sty
         mainfont: Times New Roman
         sansfont: Times New Roman
@@ -62,7 +62,7 @@ This research underscores the critical need for comprehensive awareness and test
 
 The year 1980 is proclaimed as the start of the HIV epidemic. Since then, scientists around the world have been diligently working to find new ways to protect the global public from infection and treat those who have been infected [@Sharp2011]. Thanks to increased awareness and breakthroughs in medical achievements, it is now easier to detect the HIV virus in an individual's blood. We also know that using condoms and PrEP^[PrEP, which stands for pre-exposure prophylaxis, is a medication that significantly reduces the risk of HIV infection.] is an effective means of preventing infection.          
 
-As a result, the global number of new infections has significantly decreased, thanks to advanced treatment methods, infected individuals can now enjoy a lifespan similar to uninfected people. The global infection rate continues to decline, as reported by @unaidsGlobalAIDS. However, in some well-developed countries, there is a concerning rise in new HIV infections, particularly noticeable in the European Union (EU) where the number of new infections has been on the rise [@EUHIV20212022]. One contributing factor is the global COVID-19 epidemic, which has discouraged people from getting tested for HIV, as evidenced by our dataset. Poland is one of the countries experiencing a worsening situation.        
+As a result, the global number of new infections has significantly decreased, thanks to advanced treatment methods, infected individuals can now enjoy a lifespan similar to uninfected people. The global infection rate continues to decline, as reported by UNAIDS [@unaidsGlobalAIDS]. However, in some well-developed countries, there is a concerning rise in new HIV infections, particularly noticeable in the European Union (EU) where the number of new infections has been on the rise [@EUHIV20212022]. One contributing factor is the global COVID-19 epidemic, which has discouraged people from getting tested for HIV, as evidenced by our dataset. Poland is one of the countries experiencing a worsening situation.        
 
 From the beginning of the HIV epidemic, this virus has been associated with non-heteronormative individuals, predominantly males. During those years, gay men faced less acceptance compared to other sexual identities. Gay clubs provided a safe and accepting environment where anonymity was valued, and engaging in anonymous sexual encounters was not uncommon. Before the awareness of HIV, the use of condoms was less prevalent, making such sexual behavior highly risky. 
 
